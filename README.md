@@ -21,9 +21,11 @@ A Java console application that simulates a customer order troubleshooting syste
 
 ## Project Structure
 
+```
 src/
 ├── Main.java       # Entry point, database connection, troubleshooting logic
 └── Order.java      # Order class blueprint
+```
 
 
 ## Concepts Demonstrated
