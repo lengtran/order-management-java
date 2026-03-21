@@ -1,17 +1,5 @@
-// ─────────────────────────────────────────────
-//  CONSTANTS
-// ─────────────────────────────────────────────
 let storeNames = {};
 
-async function loadStores() {
-    const response = await fetch('/api/stores');
-    const stores   = await response.json();
-    stores.forEach(s => storeNames[s.id] = s.name);
-}
-
-// ─────────────────────────────────────────────
-//  HELPERS
-// ─────────────────────────────────────────────
 function isITIssue(order) {
     return (order.orderStatus === 'Failed'  && order.paymentStatus === 'Paid') ||
         (order.orderStatus === 'Pending' && order.paymentStatus === 'Declined');
@@ -34,17 +22,6 @@ function getBadgeClass(value) {
     return map[value] || '';
 }
 
-function getMockLineItems(order) {
-    const half = order.total / 2;
-    return [
-        { name: 'Item A', qty: 1, listPrice: +(half * 1.1).toFixed(2), retailPrice: +half.toFixed(2) },
-        { name: 'Item B', qty: 1, listPrice: +(half * 1.1).toFixed(2), retailPrice: +half.toFixed(2) }
-    ];
-}
-
-// ─────────────────────────────────────────────
-//  STAT CARDS
-// ─────────────────────────────────────────────
 function renderStatCards(data) {
     const failed    = data.filter(o => o.orderStatus   === 'Failed').length;
     const declined  = data.filter(o => o.paymentStatus === 'Declined').length;
@@ -71,9 +48,6 @@ function renderStatCards(data) {
     `;
 }
 
-// ─────────────────────────────────────────────
-//  TABLE
-// ─────────────────────────────────────────────
 function renderTable(data) {
     const tbody = document.getElementById('ordersTableBody');
     tbody.innerHTML = '';
@@ -98,9 +72,6 @@ function renderTable(data) {
     });
 }
 
-// ─────────────────────────────────────────────
-//  FILTERS  (called via oninput / onchange in HTML)
-// ─────────────────────────────────────────────
 function applyFilters() {
     const search      = document.getElementById('searchInput').value.toLowerCase();
     const storeFilter = document.getElementById('storeFilter').value;
@@ -117,18 +88,12 @@ function applyFilters() {
     renderStatCards(filtered);
 }
 
-// ─────────────────────────────────────────────
-//  RESOLVE
-// ─────────────────────────────────────────────
 function resolveOrder(id, btn) {
     btn.disabled    = true;
     btn.textContent = 'Resolved';
 }
 
-// ─────────────────────────────────────────────
-//  ORDER MODAL
-// ─────────────────────────────────────────────
-function openOrderModal(id) {
+async function openOrderModal(id) {
     const order = orders.find(o => o.id === id);
     if (!order) return;
 
@@ -151,7 +116,9 @@ function openOrderModal(id) {
         <div class="info-item"><div class="info-label">IT Issue</div>       <div class="info-value">${itIssue ? '⚠️ Yes' : 'No'}</div></div>
     `;
 
-    const items = getMockLineItems(order);
+    const itemsRes = await fetch(`/api/order-items/${order.id}`);
+    const items    = await itemsRes.json();
+
     const tbody = document.getElementById('orderItemsBody');
     tbody.innerHTML = '';
     let subtotal = 0;
@@ -190,9 +157,6 @@ function openOrderModal(id) {
     openModal('orderModal');
 }
 
-// ─────────────────────────────────────────────
-//  CUSTOMER MODAL
-// ─────────────────────────────────────────────
 function openCustomerModal(customerId) {
     const customerOrders = orders.filter(o => o.customerId === customerId);
     if (!customerOrders.length) return;
@@ -203,8 +167,8 @@ function openCustomerModal(customerId) {
         `Customer ID: ${customerId} · ${customerOrders.length} order(s) on file`;
 
     document.getElementById('customerModalGrid').innerHTML = `
-        <div class="info-item"><div class="info-label">Customer ID</div><div class="info-value">${customerId}</div></div>
-        <div class="info-item"><div class="info-label">Name</div>       <div class="info-value">${first.customer}</div></div>
+        <div class="info-item"><div class="info-label">Customer ID</div> <div class="info-value">${customerId}</div></div>
+        <div class="info-item"><div class="info-label">Name</div>        <div class="info-value">${first.customer}</div></div>
         <div class="info-item"><div class="info-label">Total Orders</div><div class="info-value">${customerOrders.length}</div></div>
     `;
 
@@ -233,10 +197,7 @@ function openCustomerModal(customerId) {
     openModal('customerModal');
 }
 
-// ─────────────────────────────────────────────
-//  MODIFY ORDER MODAL
-// ─────────────────────────────────────────────
-function openModifyModal(id) {
+async function openModifyModal(id) {
     const order = orders.find(o => o.id === id);
     if (!order) return;
 
@@ -245,7 +206,9 @@ function openModifyModal(id) {
     document.getElementById('modifyOrderStatus').value      = order.orderStatus;
     document.getElementById('modifyFulfillment').value      = order.fulfillment;
 
-    const items = getMockLineItems(order);
+    const itemsRes = await fetch(`/api/order-items/${order.id}`);
+    const items    = await itemsRes.json();
+
     const tbody = document.getElementById('modifyItemsBody');
     tbody.innerHTML = '';
     items.forEach((item, i) => {
@@ -297,9 +260,6 @@ function saveModifyOrder() {
     alert(`Order #${id} updated successfully.`);
 }
 
-// ─────────────────────────────────────────────
-//  MODIFY CUSTOMER MODAL
-// ─────────────────────────────────────────────
 function openModifyCustomerModal(customerId) {
     const customerOrders = orders.filter(o => o.customerId === customerId);
     if (!customerOrders.length) return;
@@ -307,10 +267,10 @@ function openModifyCustomerModal(customerId) {
     const first                = customerOrders[0];
     const [firstName, ...rest] = first.customer.split(' ');
 
-    document.getElementById('modifyCustomerTitle').textContent  = `Edit Profile — ${first.customer}`;
-    document.getElementById('modifyCustomerId').value           = customerId;
-    document.getElementById('modifyCustFirstName').value        = firstName;
-    document.getElementById('modifyCustLastName').value         = rest.join(' ');
+    document.getElementById('modifyCustomerTitle').textContent = `Edit Profile — ${first.customer}`;
+    document.getElementById('modifyCustomerId').value          = customerId;
+    document.getElementById('modifyCustFirstName').value       = firstName;
+    document.getElementById('modifyCustLastName').value        = rest.join(' ');
 
     openModal('modifyCustomerModal');
 }
@@ -348,9 +308,6 @@ function saveModifyCustomer() {
     alert('Customer profile updated.');
 }
 
-// ─────────────────────────────────────────────
-//  IT SUPPORT MODAL
-// ─────────────────────────────────────────────
 const itTickets = {};
 
 function openITSupportModal(orderId) {
@@ -435,15 +392,9 @@ function submitNewTicket() {
     openITSupportModal(orderId);
 }
 
-// ─────────────────────────────────────────────
-//  MODAL HELPERS
-// ─────────────────────────────────────────────
 function openModal(id)  { document.getElementById(id).classList.add('active');    }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-// ─────────────────────────────────────────────
-//  BOOTSTRAP
-// ─────────────────────────────────────────────
 let orders = [];
 
 async function loadStores() {

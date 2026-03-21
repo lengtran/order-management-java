@@ -1,5 +1,7 @@
-package com.oms;
+package com.oms.controller;
 
+import com.oms.repository.OrderRepository;
+import com.oms.model.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;

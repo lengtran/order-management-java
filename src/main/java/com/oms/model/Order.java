@@ -1,4 +1,4 @@
-package com.oms;
+package com.oms.model;
 
 import jakarta.persistence.*;
 

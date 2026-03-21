@@ -1,5 +1,6 @@
-package com.oms;
+package com.oms.repository;
 
+import com.oms.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
