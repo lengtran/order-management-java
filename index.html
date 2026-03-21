@@ -12,16 +12,61 @@
             padding: 40px;
         }
 
-        h1 {
-            color: #7ec8e3;
-            margin-bottom: 10px;
-        }
+        h1 { color: #7ec8e3; margin-bottom: 6px; }
+        p  { color: #aaaaaa; margin-bottom: 30px; }
 
-        p {
-            color: #aaaaaa;
+        /* Summary Cards */
+        .cards {
+            display: flex;
+            gap: 16px;
             margin-bottom: 30px;
         }
 
+        .card {
+            flex: 1;
+            background-color: #2a2a3d;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card .number {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .card .label {
+            font-size: 13px;
+            color: #aaaaaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card.failed   .number { color: #ff4d4d; }
+        .card.declined .number { color: #ffaa00; }
+        .card.canceled .number { color: #aaaaaa; }
+        .card.completed .number { color: #00cc66; }
+
+        /* Search Bar */
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            width: 300px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid #3a3a5c;
+            background-color: #2a2a3d;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-bar input::placeholder { color: #666; }
+
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -34,7 +79,7 @@
             background-color: #3a3a5c;
             padding: 14px 18px;
             text-align: left;
-            font-size: 14px;
+            font-size: 13px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -45,7 +90,6 @@
             font-size: 14px;
         }
 
-        /* Status badges */
         .badge {
             padding: 4px 12px;
             border-radius: 20px;
@@ -53,16 +97,26 @@
             font-weight: bold;
         }
 
-        .failed     { background-color: #ff4d4d33; color: #ff4d4d; }
-        .declined   { background-color: #ffaa0033; color: #ffaa00; }
-        .canceled   { background-color: #88888833; color: #aaaaaa; }
-        .completed  { background-color: #00cc6633; color: #00cc66; }
+        .failed    { background-color: #ff4d4d33; color: #ff4d4d; }
+        .declined  { background-color: #ffaa0033; color: #ffaa00; }
+        .canceled  { background-color: #88888833; color: #aaaaaa; }
+        .completed { background-color: #00cc6633; color: #00cc66; }
+        .action    { font-style: italic; color: #aaaaaa; }
 
-        /* Action column */
-        .action {
-            font-style: italic;
-            color: #aaaaaa;
+        /* Resolve Button */
+        .resolve-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: none;
+            background-color: #3a3a5c;
+            color: #ffffff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
+
+        .resolve-btn:hover  { background-color: #00cc66; color: #000; }
+        .resolve-btn:disabled { background-color: #2a2a3d; color: #555; cursor: default; }
     </style>
 </head>
 <body>
@@ -70,7 +124,33 @@
 <h1>Order Management System</h1>
 <p>Displays customer orders and recommended troubleshooting actions.</p>
 
-<table>
+<!-- Summary Cards -->
+<div class="cards">
+    <div class="card failed">
+        <div class="number">1</div>
+        <div class="label">Failed</div>
+    </div>
+    <div class="card declined">
+        <div class="number">1</div>
+        <div class="label">Declined</div>
+    </div>
+    <div class="card canceled">
+        <div class="number">1</div>
+        <div class="label">Canceled</div>
+    </div>
+    <div class="card completed">
+        <div class="number">1</div>
+        <div class="label">Completed</div>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search by customer or order ID..." onkeyup="filterTable()">
+</div>
+
+<!-- Orders Table -->
+<table id="ordersTable">
     <thead>
     <tr>
         <th>Order ID</th>
@@ -78,6 +158,7 @@
         <th>Order Status</th>
         <th>Payment Status</th>
         <th>Action</th>
+        <th>Resolve</th>
     </tr>
     </thead>
     <tbody>
@@ -87,6 +168,7 @@
         <td><span class="badge failed">Failed</span></td>
         <td>Paid</td>
         <td class="action">Reprocessing order...</td>
+        <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
     </tr>
     <tr>
         <td>1002</td>
@@ -94,6 +176,7 @@
         <td>Pending</td>
         <td><span class="badge declined">Declined</span></td>
         <td class="action">Escalating to payment team...</td>
+        <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
     </tr>
     <tr>
         <td>1003</td>
@@ -101,6 +184,7 @@
         <td><span class="badge canceled">Canceled</span></td>
         <td>Refunded</td>
         <td class="action">Logging cancellation...</td>
+        <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
     </tr>
     <tr>
         <td>1004</td>
@@ -108,9 +192,30 @@
         <td><span class="badge completed">Completed</span></td>
         <td>Paid</td>
         <td class="action">No action needed.</td>
+        <td><button class="resolve-btn" disabled>Resolved</button></td>
     </tr>
     </tbody>
 </table>
+
+<script>
+    // Search filter
+    function filterTable() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const rows = document.querySelectorAll("#ordersTable tbody tr");
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+
+    // Resolve button
+    function resolveOrder(btn) {
+        const row = btn.closest("tr");
+        row.style.opacity = "0.4";
+        btn.textContent = "Resolved";
+        btn.disabled = true;
+    }
+</script>
 
 </body>
 </html>
