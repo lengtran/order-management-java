@@ -264,3 +264,16 @@ td {
 .btn-close:hover {
     background-color: #4a4a6c;
 }
+
+/* Required field validation */
+.form-control.invalid {
+    border-color: #f87171 !important;
+    background-color: #2a1a1a;
+}
+
+.field-error {
+    color: #f87171;
+    font-size: 11px;
+    margin-top: 4px;
+    min-height: 14px;
+}

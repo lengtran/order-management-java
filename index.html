@@ -231,75 +231,166 @@
             </thead>
             <tbody id="customerOrderHistoryBody"></tbody>
         </table>
+        <div class="action-buttons" id="customerModalActions"></div>
     </div>
 </div>
 
-<!-- Modify Order Modal -->
-<div class="modal-overlay" id="modifyModal">
-    <div class="modal" style="width:680px;">
-        <button class="modal-close" onclick="closeModal('modifyModal')">✕</button>
-        <h2 id="modifyModalTitle">Modify Order</h2>
-        <div class="subtitle">Adjust quantities, status, and fulfillment. Removed items are kept for records.</div>
-        <input type="hidden" id="modifyOrderId">
+<!-- Modify Customer Modal -->
+<div class="modal-overlay" id="modifyCustomerModal">
+    <div class="modal" style="width:580px;">
+        <button class="modal-close" onclick="closeModal('modifyCustomerModal')">✕</button>
+        <h2 id="modifyCustomerTitle">Edit Profile</h2>
+        <div class="subtitle">Fields marked <span style="color:#f87171;">*</span> are required.</div>
+        <input type="hidden" id="modifyCustomerId">
 
-        <div style="display:flex; flex-direction:column; gap:18px; margin-top:8px;">
+        <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <!-- Name Row: First | MI | Last -->
+            <div>
+                <div class="form-label">
+                    Name <span style="color:#f87171;">*</span>
+                    <span style="color:#666; font-size:11px; margin-left:6px;">MI is optional</span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 64px 1fr; gap:10px; margin-top:6px;">
+                    <div>
+                        <input type="text" id="modifyCustFirstName" class="form-control" placeholder="First Name">
+                        <div class="field-error" id="modifyCustFirstNameError"></div>
+                    </div>
+                    <input type="text" id="modifyCustMiddleInit" class="form-control"
+                           placeholder="MI" maxlength="1" style="text-align:center;">
+                    <div>
+                        <input type="text" id="modifyCustLastName" class="form-control" placeholder="Last Name">
+                        <div class="field-error" id="modifyCustLastNameError"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+                <div class="form-label">Email <span style="color:#f87171;">*</span></div>
+                <input type="email" id="modifyCustEmail" class="form-control" placeholder="Email address">
+                <div class="field-error" id="modifyCustEmailError"></div>
+            </div>
+
+            <!-- Phone + Type -->
+            <div style="display:grid; grid-template-columns:1fr 130px; gap:12px; align-items:start;">
                 <div>
-                    <div class="form-label">Order Status</div>
-                    <select id="modifyOrderStatus" class="form-control">
-                        <option>Failed</option>
-                        <option>Pending</option>
-                        <option>Completed</option>
-                        <option>Canceled</option>
-                    </select>
+                    <div class="form-label">Phone Number <span style="color:#f87171;">*</span></div>
+                    <input type="text" id="modifyCustPhone" class="form-control" placeholder="e.g. 512-555-0100">
+                    <div class="field-error" id="modifyCustPhoneError"></div>
                 </div>
                 <div>
-                    <div class="form-label">Fulfillment Type</div>
-                    <select id="modifyFulfillment" class="form-control">
-                        <option>Delivery</option>
-                        <option>Pickup</option>
-                        <option>Will Call</option>
-                        <option>Ship to Store</option>
+                    <div class="form-label">Type</div>
+                    <select id="modifyCustPhoneType" class="form-control">
+                        <option value="Mobile">Mobile</option>
+                        <option value="Home">Home</option>
+                        <option value="Work">Work</option>
                     </select>
                 </div>
             </div>
 
+            <!-- Contact Preference -->
             <div>
-                <div class="form-label" style="margin-bottom:10px;">Adjust Item Quantities</div>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Item / SKU</th>
-                        <th>Unit Price</th>
-                        <th>Qty</th>
-                        <th>Line Total</th>
-                    </tr>
-                    </thead>
-                    <tbody id="modifyItemsBody"></tbody>
-                </table>
+                <div class="form-label">Contact Preference</div>
+                <div style="display:flex; gap:24px; margin-top:8px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
+                        <input type="radio" name="modifyCustPref" value="Call"> 📞 Call
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
+                        <input type="radio" name="modifyCustPref" value="Text"> 💬 Text
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
+                        <input type="radio" name="modifyCustPref" value="Email"> ✉️ Email
+                    </label>
+                </div>
             </div>
 
-            <div class="cost-breakdown">
-                <div class="cost-row"><span>Subtotal</span><span id="modifySubtotal">$0.00</span></div>
-                <div class="cost-row"><span>Tax</span><span id="modifyTax">$0.00</span></div>
-                <div class="cost-row total"><span>New Order Total</span><span id="modifyTotal">$0.00</span></div>
+            <!-- Street Address -->
+            <div>
+                <div class="form-label">Street Address <span style="color:#f87171;">*</span></div>
+                <input type="text" id="modifyCustStreet" class="form-control" placeholder="e.g. 4521 Lamar Blvd">
+                <div class="field-error" id="modifyCustStreetError"></div>
             </div>
 
+            <!-- City | State | Zip -->
+            <div style="display:grid; grid-template-columns:1fr 80px 110px; gap:10px;">
+                <div>
+                    <div class="form-label">City <span style="color:#f87171;">*</span></div>
+                    <input type="text" id="modifyCustCity" class="form-control" placeholder="City">
+                    <div class="field-error" id="modifyCustCityError"></div>
+                </div>
+                <div>
+                    <div class="form-label">State <span style="color:#f87171;">*</span></div>
+                    <input type="text" id="modifyCustState" class="form-control"
+                           placeholder="TX" maxlength="2" style="text-align:center;">
+                    <div class="field-error" id="modifyCustStateError"></div>
+                </div>
+                <div>
+                    <div class="form-label">Zip <span style="color:#f87171;">*</span></div>
+                    <input type="text" id="modifyCustZip" class="form-control"
+                           placeholder="78701" maxlength="10">
+                    <div class="field-error" id="modifyCustZipError"></div>
+                </div>
+            </div>
+
+            <!-- Account Type -->
             <div>
-                <div class="form-label">Note (optional)</div>
-                <textarea id="modifyNote" class="form-control" rows="2"
-                          placeholder="e.g. Customer requested qty reduction on drill bits..."></textarea>
+                <div class="form-label">Account Type</div>
+                <div style="display:flex; gap:24px; margin-top:8px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
+                        <input type="radio" name="modifyCustType" value="Residential" onchange="toggleBusinessFields()"> 🏠 Residential
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
+                        <input type="radio" name="modifyCustType" value="Business" onchange="toggleBusinessFields()"> 🏢 Business
+                    </label>
+                </div>
+            </div>
+
+            <!-- Business Only: Tax ID + Tax Exempt -->
+            <div id="businessFieldsRow" style="display:none; flex-direction:column; gap:12px;
+                 background:#1a1a2e; border:1px solid #2e2e4e; border-radius:8px; padding:14px;">
+
+                <div style="font-size:12px; color:#888; margin-bottom:2px;">
+                    🏢 Business Account Fields
+                </div>
+
+                <!-- Tax ID -->
+                <div>
+                    <div class="form-label">
+                        Tax ID
+                        <span style="color:#666; font-size:11px; margin-left:6px;">
+                            (optional — locked once saved)
+                        </span>
+                    </div>
+                    <input type="text" id="modifyCustTaxId" class="form-control" placeholder="e.g. TX-12345678">
+                </div>
+
+                <!-- Tax Exempt -->
+                <div>
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                        <input type="checkbox" id="modifyCustTaxExempt"
+                               style="width:16px; height:16px; accent-color:#a78bfa;">
+                        <span style="color:#ccc; font-size:14px;">
+                            Tax Exempt
+                            <span style="color:#666; font-size:11px; margin-left:6px;">
+                                (locked if Tax ID is set)
+                            </span>
+                        </span>
+                    </label>
+                </div>
+
             </div>
 
         </div>
 
-        <div class="action-buttons">
-            <button class="btn btn-modify" onclick="saveModifyOrder()">💾 Save Changes</button>
-            <button class="btn btn-cancel" onclick="closeModal('modifyModal')">Cancel</button>
+        <div class="action-buttons" style="margin-top:24px;">
+            <button class="btn btn-modify" onclick="saveModifyCustomer()">💾 Save Profile</button>
+            <button class="btn btn-close"  onclick="closeModal('modifyCustomerModal')">Cancel</button>
         </div>
     </div>
 </div>
+
+
 
 <script src="app.js"></script>
 

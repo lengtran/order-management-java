@@ -143,55 +143,89 @@ const orders = {
 
 // ============================================================
 // CUSTOMERS DATA
-// Each customer contains: contact info and their order history
-// Order history is a lightweight summary (not full order detail)
+// Includes split name (first, middle initial, last),
+// split address (street, city, state, zip), phone type,
+// contact preference (Call/Text/Email), account type,
+// tax ID (locked once set), tax exempt flag (business only)
 // ============================================================
 const customers = {
-    'C001': { id:'C001', name:'John Smith', email:'john.smith@email.com', phone:'512-555-0101',
+    'C001': {
+        id:'C001', firstName:'John', middleInit:null, lastName:'Smith',
+        email:'john.smith@email.com', phone:'512-555-0101', phoneType:'Mobile',
+        contactPref:'Text', street:'4521 Lamar Blvd', city:'Austin', state:'TX', zip:'78756',
+        customerType:'Residential', taxId:null, taxExempt:false,
         orders: [
             { id:'1001', storeId:'S001', date:'2026-03-20', orderStatus:'Failed',    payment:'Paid', total:'$149.99' },
             { id:'1005', storeId:'S001', date:'2026-02-14', orderStatus:'Completed', payment:'Paid', total:'$39.99'  },
             { id:'1006', storeId:'S002', date:'2026-01-05', orderStatus:'Completed', payment:'Paid', total:'$79.99'  }
         ]
     },
-    'C002': { id:'C002', name:'Jane Doe', email:'jane.doe@email.com', phone:'512-555-0102',
+    'C002': {
+        id:'C002', firstName:'Jane', middleInit:null, lastName:'Doe',
+        email:'jane.doe@email.com', phone:'512-555-0102', phoneType:'Home',
+        contactPref:'Call', street:'812 Congress Ave', city:'Austin', state:'TX', zip:'78701',
+        customerType:'Residential', taxId:null, taxExempt:false,
         orders: [
             { id:'1002', storeId:'S002', date:'2026-03-20', orderStatus:'Pending',   payment:'Declined', total:'$89.99'  },
             { id:'1007', storeId:'S003', date:'2026-02-28', orderStatus:'Completed', payment:'Paid',     total:'$119.99' }
         ]
     },
-    'C003': { id:'C003', name:'Bob Johnson', email:'bob.johnson@email.com', phone:'512-555-0103',
+    'C003': {
+        id:'C003', firstName:'Bob', middleInit:'R', lastName:'Johnson',
+        email:'bob.johnson@email.com', phone:'512-555-0103', phoneType:'Work',
+        contactPref:'Call', street:'3309 Speedway', city:'Austin', state:'TX', zip:'78705',
+        customerType:'Business', taxId:'TX-98234571', taxExempt:true,
         orders: [
             { id:'1003', storeId:'S003', date:'2026-03-19', orderStatus:'Canceled',  payment:'Refunded', total:'$59.99' },
             { id:'1008', storeId:'S003', date:'2026-01-22', orderStatus:'Completed', payment:'Paid',     total:'$29.99' }
         ]
     },
-    'C004': { id:'C004', name:'Alice Brown', email:'alice.brown@email.com', phone:'512-555-0104',
+    'C004': {
+        id:'C004', firstName:'Alice', middleInit:'M', lastName:'Brown',
+        email:'alice.brown@email.com', phone:'512-555-0104', phoneType:'Mobile',
+        contactPref:'Text', street:'620 W 6th St', city:'Austin', state:'TX', zip:'78701',
+        customerType:'Residential', taxId:null, taxExempt:false,
         orders: [
             { id:'1004', storeId:'S003', date:'2026-03-18', orderStatus:'Completed', payment:'Paid', total:'$199.99' },
             { id:'1009', storeId:'S001', date:'2026-03-10', orderStatus:'Failed',    payment:'Paid', total:'$99.99'  },
             { id:'1010', storeId:'S002', date:'2026-02-01', orderStatus:'Completed', payment:'Paid', total:'$49.99'  }
         ]
     },
-    'C005': { id:'C005', name:'Marcus Johnson', email:'marcus.johnson@email.com', phone:'512-555-0105',
+    'C005': {
+        id:'C005', firstName:'Marcus', middleInit:null, lastName:'Johnson',
+        email:'marcus.johnson@email.com', phone:'512-555-0105', phoneType:'Mobile',
+        contactPref:'Text', street:'1104 S 1st St', city:'Austin', state:'TX', zip:'78704',
+        customerType:'Residential', taxId:null, taxExempt:false,
         orders: [
             { id:'1011', storeId:'S001', date:'2026-03-20', orderStatus:'Failed',    payment:'Paid', total:'$245.97' },
             { id:'1012', storeId:'S002', date:'2026-03-15', orderStatus:'Completed', payment:'Paid', total:'$89.99'  }
         ]
     },
-    'C006': { id:'C006', name:'Sara Williams', email:'sara.williams@email.com', phone:'512-555-0106',
+    'C006': {
+        id:'C006', firstName:'Sara', middleInit:'L', lastName:'Williams',
+        email:'sara.williams@email.com', phone:'512-555-0106', phoneType:'Work',
+        contactPref:'Email', street:'7801 N Lamar Blvd', city:'Austin', state:'TX', zip:'78752',
+        customerType:'Business', taxId:'TX-77412309', taxExempt:false,
         orders: [
             { id:'1013', storeId:'S001', date:'2026-03-20', orderStatus:'Pending',   payment:'Declined', total:'$312.45' },
             { id:'1014', storeId:'S003', date:'2026-03-10', orderStatus:'Completed', payment:'Paid',     total:'$54.99'  }
         ]
     },
-    'C007': { id:'C007', name:'David Lee', email:'david.lee@email.com', phone:'512-555-0107',
+    'C007': {
+        id:'C007', firstName:'David', middleInit:null, lastName:'Lee',
+        email:'david.lee@email.com', phone:'512-555-0107', phoneType:'Mobile',
+        contactPref:'Call', street:'2214 Barton Springs Rd', city:'Austin', state:'TX', zip:'78746',
+        customerType:'Residential', taxId:null, taxExempt:false,
         orders: [
             { id:'1015', storeId:'S002', date:'2026-03-19', orderStatus:'Canceled',  payment:'Refunded', total:'$178.50' },
             { id:'1016', storeId:'S001', date:'2026-03-12', orderStatus:'Completed', payment:'Paid',     total:'$99.99'  }
         ]
     },
-    'C008': { id:'C008', name:'Priya Patel', email:'priya.patel@email.com', phone:'512-555-0108',
+    'C008': {
+        id:'C008', firstName:'Priya', middleInit:'S', lastName:'Patel',
+        email:'priya.patel@email.com', phone:'512-555-0108', phoneType:'Work',
+        contactPref:'Email', street:'500 E Whitestone Blvd', city:'Round Rock', state:'TX', zip:'78664',
+        customerType:'Business', taxId:'TX-55018847', taxExempt:true,
         orders: [
             { id:'1017', storeId:'S003', date:'2026-03-20', orderStatus:'Failed',   payment:'Paid',     total:'$421.98' },
             { id:'1018', storeId:'S002', date:'2026-03-18', orderStatus:'Pending',  payment:'Declined', total:'$67.50'  }
@@ -231,11 +265,9 @@ function openOrderModal(orderId) {
     const o = orders[orderId];
     if (!o) return;
 
-    // Set modal header
     document.getElementById('orderModalTitle').textContent    = `Order #${o.id}`;
     document.getElementById('orderModalSubtitle').textContent = `Customer: ${o.customer} (${o.customerId})`;
 
-    // Populate order info grid (status, fulfillment, date, store)
     document.getElementById('orderModalGrid').innerHTML = `
         <div class="info-item"><div class="info-label">Order Status</div><div class="info-value">${getBadge(o.orderStatus)}</div></div>
         <div class="info-item"><div class="info-label">Payment Status</div><div class="info-value">${getBadge(o.paymentStatus)}</div></div>
@@ -262,7 +294,6 @@ function openOrderModal(orderId) {
     }).join('');
     document.getElementById('orderItemsBody').innerHTML = itemRows;
 
-    // Render subtotal / tax / shipping / total breakdown
     renderCostBreakdown(o);
 
     // Conditional action buttons based on order/payment status
@@ -301,26 +332,52 @@ function renderCostBreakdown(o) {
 
 // ============================================================
 // CUSTOMER DETAIL MODAL
-// Opens when clicking a customer name in the main table.
-// Displays contact info and full order history with
-// View Order and Modify buttons per order row.
+// Displays full customer profile: split name, contact info,
+// address, account type, tax ID, tax exempt, contact pref,
+// and order history. Includes Edit Profile button.
 // ============================================================
 function openCustomerModal(customerId) {
     const c = customers[customerId];
     if (!c) return;
 
-    // Set modal header
-    document.getElementById('customerModalTitle').textContent    = c.name;
+    const fullName = c.middleInit
+        ? `${c.firstName} ${c.middleInit}. ${c.lastName}`
+        : `${c.firstName} ${c.lastName}`;
+
+    const fullAddress = `${c.street}, ${c.city}, ${c.state} ${c.zip}`;
+
+    document.getElementById('customerModalTitle').textContent    = fullName;
     document.getElementById('customerModalSubtitle').textContent = `Customer ID: ${c.id}`;
 
-    // Populate customer info grid
+    const typeBadge = c.customerType === 'Business'
+        ? `<span class="badge declined">Business</span>`
+        : `<span class="badge completed">Residential</span>`;
+
+    const phoneDisplay = `${c.phone} <span style="color:#aaa;font-size:12px;">(${c.phoneType})</span>`;
+
+    const prefMap   = { Call:'📞 Prefers Call', Text:'💬 Prefers Text', Email:'✉️ Prefers Email' };
+    const prefColor = { Call:'#60a5fa', Text:'#a78bfa', Email:'#34d399' };
+    const prefDisplay = `<span style="color:${prefColor[c.contactPref] || '#ccc'};">${prefMap[c.contactPref] || c.contactPref}</span>`;
+
+    // Show tax exempt badge only for business accounts
+    const taxExemptDisplay = c.customerType === 'Business'
+        ? (c.taxExempt
+            ? `<span class="badge completed">✔ Tax Exempt</span>`
+            : `<span class="badge canceled">Not Exempt</span>`)
+        : '<span style="color:#555;">N/A</span>';
+
     document.getElementById('customerModalGrid').innerHTML = `
         <div class="info-item"><div class="info-label">Email</div><div class="info-value">${c.email}</div></div>
-        <div class="info-item"><div class="info-label">Phone</div><div class="info-value">${c.phone}</div></div>
+        <div class="info-item"><div class="info-label">Phone</div><div class="info-value">${phoneDisplay}</div></div>
+        <div class="info-item"><div class="info-label">Contact Preference</div><div class="info-value">${prefDisplay}</div></div>
+        <div class="info-item"><div class="info-label">Address</div><div class="info-value">${fullAddress}</div></div>
+        <div class="info-item"><div class="info-label">Account Type</div><div class="info-value">${typeBadge}</div></div>
+        <div class="info-item"><div class="info-label">Tax ID</div><div class="info-value">${c.taxId || '<span style="color:#555;">N/A</span>'}</div></div>
+        <div class="info-item"><div class="info-label">Tax Exempt</div><div class="info-value">${taxExemptDisplay}</div></div>
         <div class="info-item"><div class="info-label">Total Orders</div><div class="info-value">${c.orders.length}</div></div>
     `;
 
-    // Build order history rows with View Order and Modify buttons
+    // Order history rows
     const rows = c.orders.map(o => `
         <tr>
             <td>${o.id}</td>
@@ -336,6 +393,11 @@ function openCustomerModal(customerId) {
         </tr>
     `).join('');
     document.getElementById('customerOrderHistoryBody').innerHTML = rows;
+
+    document.getElementById('customerModalActions').innerHTML = `
+        <button class="btn btn-modify" onclick="openModifyCustomerModal('${c.id}')">✏️ Edit Profile</button>
+        <button class="btn btn-close"  onclick="closeModal('customerModal')">✕ Close</button>
+    `;
 
     document.getElementById('customerModal').classList.add('active');
 }
@@ -361,6 +423,147 @@ function openModifyFromOrder(orderId) {
 }
 
 // ============================================================
+// OPEN MODIFY CUSTOMER MODAL
+// Fixes "undefined" title by using firstName/lastName.
+// Required fields: firstName, lastName, email, phone,
+// street, city, state, zip.
+// MI is optional. Tax ID is locked if it already has a value.
+// Tax Exempt checkbox is locked if Tax ID has a value.
+// Tax ID and Tax Exempt only show for Business account type.
+// ============================================================
+function openModifyCustomerModal(customerId) {
+    const c = customers[customerId];
+    if (!c) return;
+
+    const fullName = [c.firstName, c.middleInit ? c.middleInit + '.' : null, c.lastName]
+        .filter(Boolean).join(' ') || 'Customer';
+
+    document.getElementById('modifyCustomerTitle').textContent = `Edit Profile — ${fullName}`;
+    document.getElementById('modifyCustomerId').value          = customerId;
+
+    // Pre-fill name
+    document.getElementById('modifyCustFirstName').value  = c.firstName  || '';
+    document.getElementById('modifyCustMiddleInit').value = c.middleInit || '';
+    document.getElementById('modifyCustLastName').value   = c.lastName   || '';
+
+    // Pre-fill contact
+    document.getElementById('modifyCustEmail').value     = c.email     || '';
+    document.getElementById('modifyCustPhone').value     = c.phone     || '';
+    document.getElementById('modifyCustPhoneType').value = c.phoneType || 'Mobile';
+
+    // Pre-fill address
+    document.getElementById('modifyCustStreet').value = c.street || '';
+    document.getElementById('modifyCustCity').value   = c.city   || '';
+    document.getElementById('modifyCustState').value  = c.state  || '';
+    document.getElementById('modifyCustZip').value    = c.zip    || '';
+
+    // Tax ID — lock if already has a value
+    const taxIdInput        = document.getElementById('modifyCustTaxId');
+    taxIdInput.value        = c.taxId || '';
+    taxIdInput.disabled     = !!c.taxId;
+    taxIdInput.style.opacity = c.taxId ? '0.45' : '1';
+    taxIdInput.style.cursor  = c.taxId ? 'not-allowed' : 'text';
+
+    // Tax Exempt — lock if Tax ID is already set
+    const taxExemptCheck        = document.getElementById('modifyCustTaxExempt');
+    taxExemptCheck.checked      = !!c.taxExempt;
+    taxExemptCheck.disabled     = !!c.taxId;
+    taxExemptCheck.style.opacity = c.taxId ? '0.45' : '1';
+    taxExemptCheck.style.cursor  = c.taxId ? 'not-allowed' : 'pointer';
+
+    // Set radios
+    document.querySelector(`input[name="modifyCustType"][value="${c.customerType || 'Residential'}"]`).checked = true;
+    document.querySelector(`input[name="modifyCustPref"][value="${c.contactPref  || 'Call'}"]`).checked        = true;
+
+    // Clear any previous validation errors
+    document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+    document.querySelectorAll('.form-control.invalid').forEach(el => el.classList.remove('invalid'));
+
+    toggleBusinessFields();
+
+    closeModal('customerModal');
+    setTimeout(() => document.getElementById('modifyCustomerModal').classList.add('active'), 200);
+}
+
+// ============================================================
+// TOGGLE BUSINESS FIELDS
+// Shows Tax ID and Tax Exempt section only for Business type.
+// Called on account type radio change and on modal open.
+// ============================================================
+function toggleBusinessFields() {
+    const isBusiness = document.querySelector('input[name="modifyCustType"]:checked')?.value === 'Business';
+    document.getElementById('businessFieldsRow').style.display = isBusiness ? 'flex' : 'none';
+}
+
+// ============================================================
+// SAVE MODIFY CUSTOMER
+// Validates all required fields before saving.
+// Skips locked Tax ID — never overwrites an existing tax ID.
+// Writes all other fields back into the customers object.
+// ============================================================
+function saveModifyCustomer() {
+    const customerId = document.getElementById('modifyCustomerId').value;
+    const c          = customers[customerId];
+    if (!c) return;
+
+    // Required field validation
+    const required = [
+        { id:'modifyCustFirstName', label:'First Name' },
+        { id:'modifyCustLastName',  label:'Last Name'  },
+        { id:'modifyCustEmail',     label:'Email'      },
+        { id:'modifyCustPhone',     label:'Phone'      },
+        { id:'modifyCustStreet',    label:'Street'     },
+        { id:'modifyCustCity',      label:'City'       },
+        { id:'modifyCustState',     label:'State'      },
+        { id:'modifyCustZip',       label:'Zip'        }
+    ];
+
+    let hasError = false;
+    required.forEach(field => {
+        const input   = document.getElementById(field.id);
+        const errorEl = document.getElementById(field.id + 'Error');
+        if (!input.value.trim()) {
+            input.classList.add('invalid');
+            if (errorEl) errorEl.textContent = `${field.label} is required.`;
+            hasError = true;
+        } else {
+            input.classList.remove('invalid');
+            if (errorEl) errorEl.textContent = '';
+        }
+    });
+
+    if (hasError) return;
+
+    // Write fields — never overwrite a locked Tax ID
+    c.firstName    = document.getElementById('modifyCustFirstName').value.trim();
+    c.middleInit   = document.getElementById('modifyCustMiddleInit').value.trim() || null;
+    c.lastName     = document.getElementById('modifyCustLastName').value.trim();
+    c.email        = document.getElementById('modifyCustEmail').value.trim();
+    c.phone        = document.getElementById('modifyCustPhone').value.trim();
+    c.phoneType    = document.getElementById('modifyCustPhoneType').value;
+    c.street       = document.getElementById('modifyCustStreet').value.trim();
+    c.city         = document.getElementById('modifyCustCity').value.trim();
+    c.state        = document.getElementById('modifyCustState').value.trim().toUpperCase();
+    c.zip          = document.getElementById('modifyCustZip').value.trim();
+    c.customerType = document.querySelector('input[name="modifyCustType"]:checked').value;
+    c.contactPref  = document.querySelector('input[name="modifyCustPref"]:checked').value;
+
+    if (!c.taxId) {
+        c.taxId = document.getElementById('modifyCustTaxId').value.trim() || null;
+    }
+    if (!document.getElementById('modifyCustTaxExempt').disabled) {
+        c.taxExempt = document.getElementById('modifyCustTaxExempt').checked;
+    }
+
+    const fullName = c.middleInit
+        ? `${c.firstName} ${c.middleInit}. ${c.lastName}`
+        : `${c.firstName} ${c.lastName}`;
+
+    closeModal('modifyCustomerModal');
+    alert(`✅ Profile updated for ${fullName}!`);
+}
+
+// ============================================================
 // MODIFY ORDER MODAL
 // Opens the modify modal for a given order.
 // Pre-populates status, fulfillment, and item quantities.
@@ -371,14 +574,11 @@ function openModifyModal(orderId) {
     const o = orders[orderId];
     if (!o) return;
 
-    // Set modal header
     document.getElementById('modifyModalTitle').textContent = `Modify Order #${orderId}`;
-
-    // Pre-fill dropdowns with current values
-    document.getElementById('modifyOrderStatus').value  = o.orderStatus;
-    document.getElementById('modifyFulfillment').value  = o.fulfillment;
-    document.getElementById('modifyNote').value         = '';
-    document.getElementById('modifyOrderId').value      = orderId;
+    document.getElementById('modifyOrderStatus').value      = o.orderStatus;
+    document.getElementById('modifyFulfillment').value      = o.fulfillment;
+    document.getElementById('modifyNote').value             = '';
+    document.getElementById('modifyOrderId').value          = orderId;
 
     // Build editable item rows with qty inputs
     const itemRows = o.items.map((item, index) => {
@@ -402,11 +602,8 @@ function openModifyModal(orderId) {
     }).join('');
 
     document.getElementById('modifyItemsBody').innerHTML = itemRows;
-
-    // Run initial total calculation
     recalculateModifyTotal(orderId);
 
-    // Close whichever modal was open before and show modify modal
     closeModal('customerModal');
     setTimeout(() => document.getElementById('modifyModal').classList.add('active'), 200);
 }
@@ -422,26 +619,22 @@ function recalculateModifyTotal(orderId) {
     if (!o) return;
 
     let newSubtotal = 0;
-
     o.items.forEach((item, index) => {
         const input     = document.getElementById(`modify-qty-${index}`);
         const qty       = input ? Math.max(0, parseInt(input.value) || 0) : item.qty;
         const lineTotal = qty * item.retailPrice;
         newSubtotal    += lineTotal;
 
-        // Update the individual line total cell
         const lineEl = document.getElementById(`modify-line-${index}`);
         if (lineEl) lineEl.innerHTML = qty === 0
             ? '<span style="color:#666;">—</span>'
             : `<strong>$${lineTotal.toFixed(2)}</strong>`;
     });
 
-    // Recalculate tax proportionally based on original tax rate
     const taxRate  = o.breakdown.subtotal > 0 ? o.breakdown.tax / o.breakdown.subtotal : 0;
     const newTax   = newSubtotal * taxRate;
     const newTotal = newSubtotal + newTax + o.breakdown.shipping - o.breakdown.discount;
 
-    // Update summary fields
     document.getElementById('modifySubtotal').textContent = `$${newSubtotal.toFixed(2)}`;
     document.getElementById('modifyTax').textContent      = `$${newTax.toFixed(2)}`;
     document.getElementById('modifyTotal').textContent    = `$${newTotal.toFixed(2)}`;
@@ -462,13 +655,11 @@ function saveModifyOrder() {
     const o              = orders[orderId];
     if (!o) return;
 
-    // Write updated quantities back to the orders object
     o.items.forEach((item, index) => {
         const input = document.getElementById(`modify-qty-${index}`);
         if (input) item.qty = Math.max(0, parseInt(input.value) || 0);
     });
 
-    // Recalculate and save the updated breakdown
     let newSubtotal      = o.items.reduce((sum, item) => sum + item.qty * item.retailPrice, 0);
     const taxRate        = o.breakdown.subtotal > 0 ? o.breakdown.tax / o.breakdown.subtotal : 0;
     const newTax         = newSubtotal * taxRate;
