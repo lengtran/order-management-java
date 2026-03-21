@@ -189,6 +189,8 @@ async function openOrderModal(id) {
         <div class="info-item"><div class="info-label">Order Status</div>   <div class="info-value"><span class="badge ${getBadgeClass(order.orderStatus)}">${order.orderStatus}</span></div></div>
         <div class="info-item"><div class="info-label">Payment Status</div> <div class="info-value"><span class="badge ${getBadgeClass(order.paymentStatus)}">${order.paymentStatus}</span></div></div>
         <div class="info-item"><div class="info-label">IT Issue</div>       <div class="info-value">${itIssue ? '⚠️ Yes' : 'No'}</div></div>
+        <div class="info-item"><div class="info-label">Channel</div>        <div class="info-value" id="modal-channel"></div>
+    </div>
     `;
 
     const itemsRes = await fetch(`/api/order-items/${order.id}`);
@@ -236,6 +238,11 @@ async function openOrderModal(id) {
                 const el = document.getElementById('modal-created-by');
                 if (el) el.textContent = `${u.firstName} ${u.lastName} (${u.username})`;
             });
+    }
+
+    const channelEl = document.getElementById('modal-channel');
+    if (channelEl) {
+        channelEl.textContent = order.storeId === 'S999' ? '🌐 Online' : '🏪 In-Store';
     }
 
     openModal('orderModal');
