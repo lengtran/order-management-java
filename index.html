@@ -237,28 +237,55 @@
 
 <!-- Modify Customer Modal -->
 <div class="modal-overlay" id="modifyCustomerModal">
-    <div class="modal" style="width:580px;">
+    <div class="modal" style="width:620px; max-height:90vh; overflow-y:auto;">
         <button class="modal-close" onclick="closeModal('modifyCustomerModal')">✕</button>
         <h2 id="modifyCustomerTitle">Edit Profile</h2>
-        <div class="subtitle">Fields marked <span style="color:#f87171;">*</span> are required.</div>
+        <div class="subtitle">Fields marked <span style="color:#f87171;">*</span> are required. MI, Phone 2, and Tax ID are optional.</div>
         <input type="hidden" id="modifyCustomerId">
 
-        <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+        <div style="display:flex; flex-direction:column; gap:18px; margin-top:18px;">
 
-            <!-- Name Row: First | MI | Last -->
+            <!-- Account Type Dropdown — Locked -->
             <div>
                 <div class="form-label">
-                    Name <span style="color:#f87171;">*</span>
-                    <span style="color:#666; font-size:11px; margin-left:6px;">MI is optional</span>
+                    Account Type
+                    <span style="color:#666; font-size:11px; margin-left:6px;">🔒 locked</span>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 64px 1fr; gap:10px; margin-top:6px;">
+                <!-- Hidden radios still used by JS logic -->
+                <div style="display:none;">
+                    <input type="radio" name="modifyCustType" value="Residential">
+                    <input type="radio" name="modifyCustType" value="Business">
+                </div>
+                <select id="modifyCustTypeDisplay" class="form-control"
+                        disabled style="opacity:0.55; cursor:not-allowed;">
+                    <option value="Residential">🏠 Residential</option>
+                    <option value="Business">🏢 Business</option>
+                </select>
+            </div>
+
+            <!-- Business Only: Company Name (above name fields) -->
+            <div id="companyNameRow" style="display:none;">
+                <div class="form-label">Company Name</div>
+                <input type="text" id="modifyCustCompany" class="form-control"
+                       placeholder="e.g. Acme Corp">
+            </div>
+
+            <!-- Name: First | MI | Last -->
+            <div>
+                <div class="form-label">Name <span style="color:#f87171;">*</span></div>
+                <div style="display:grid; grid-template-columns:1fr 80px 1fr; gap:10px; margin-top:6px;">
                     <div>
+                        <div style="font-size:11px; color:#888; margin-bottom:4px;">First Name</div>
                         <input type="text" id="modifyCustFirstName" class="form-control" placeholder="First Name">
                         <div class="field-error" id="modifyCustFirstNameError"></div>
                     </div>
-                    <input type="text" id="modifyCustMiddleInit" class="form-control"
-                           placeholder="MI" maxlength="1" style="text-align:center;">
                     <div>
+                        <div style="font-size:11px; color:#888; margin-bottom:4px;">MI <span style="color:#555;">(opt.)</span></div>
+                        <input type="text" id="modifyCustMiddleInit" class="form-control"
+                               placeholder="M" maxlength="1" style="text-align:center;">
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#888; margin-bottom:4px;">Last Name</div>
                         <input type="text" id="modifyCustLastName" class="form-control" placeholder="Last Name">
                         <div class="field-error" id="modifyCustLastNameError"></div>
                     </div>
@@ -272,15 +299,14 @@
                 <div class="field-error" id="modifyCustEmailError"></div>
             </div>
 
-            <!-- Phone + Type -->
-            <div style="display:grid; grid-template-columns:1fr 130px; gap:12px; align-items:start;">
-                <div>
-                    <div class="form-label">Phone Number <span style="color:#f87171;">*</span></div>
-                    <input type="text" id="modifyCustPhone" class="form-control" placeholder="e.g. 512-555-0100">
-                    <div class="field-error" id="modifyCustPhoneError"></div>
-                </div>
-                <div>
-                    <div class="form-label">Type</div>
+            <!-- Primary Phone + Type -->
+            <div>
+                <div class="form-label">Primary Phone <span style="color:#f87171;">*</span></div>
+                <div style="display:grid; grid-template-columns:1fr 130px; gap:12px;">
+                    <div>
+                        <input type="text" id="modifyCustPhone" class="form-control" placeholder="e.g. 512-555-0100">
+                        <div class="field-error" id="modifyCustPhoneError"></div>
+                    </div>
                     <select id="modifyCustPhoneType" class="form-control">
                         <option value="Mobile">Mobile</option>
                         <option value="Home">Home</option>
@@ -289,20 +315,38 @@
                 </div>
             </div>
 
-            <!-- Contact Preference -->
+            <!-- Secondary Phone + Type (optional) -->
+            <div>
+                <div class="form-label">
+                    Secondary Phone
+                    <span style="color:#666; font-size:11px; margin-left:6px;">(optional)</span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 130px; gap:12px;">
+                    <input type="text" id="modifyCustPhone2" class="form-control" placeholder="e.g. 512-555-0100">
+                    <select id="modifyCustPhone2Type" class="form-control">
+                        <option value="Mobile">Mobile</option>
+                        <option value="Home">Home</option>
+                        <option value="Work">Work</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Contact Preference Dropdown -->
             <div>
                 <div class="form-label">Contact Preference</div>
-                <div style="display:flex; gap:24px; margin-top:8px;">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
-                        <input type="radio" name="modifyCustPref" value="Call"> 📞 Call
-                    </label>
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
-                        <input type="radio" name="modifyCustPref" value="Text"> 💬 Text
-                    </label>
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
-                        <input type="radio" name="modifyCustPref" value="Email"> ✉️ Email
-                    </label>
+                <!-- Hidden radios still used by JS logic -->
+                <div style="display:none;">
+                    <input type="radio" name="modifyCustPref" value="Call">
+                    <input type="radio" name="modifyCustPref" value="Text">
+                    <input type="radio" name="modifyCustPref" value="Email">
                 </div>
+                <select id="modifyCustPrefDisplay" class="form-control"
+                        onchange="document.querySelector('input[name=modifyCustPref][value=this.value]');
+                              document.querySelector('input[name=\'modifyCustPref\'][value=\'' + this.value + '\']').checked = true;">
+                    <option value="Call">📞 Call</option>
+                    <option value="Text">💬 Text</option>
+                    <option value="Email">✉️ Email</option>
+                </select>
             </div>
 
             <!-- Street Address -->
@@ -313,7 +357,7 @@
             </div>
 
             <!-- City | State | Zip -->
-            <div style="display:grid; grid-template-columns:1fr 80px 110px; gap:10px;">
+            <div style="display:grid; grid-template-columns:1fr 160px 110px; gap:12px;">
                 <div>
                     <div class="form-label">City <span style="color:#f87171;">*</span></div>
                     <input type="text" id="modifyCustCity" class="form-control" placeholder="City">
@@ -321,8 +365,59 @@
                 </div>
                 <div>
                     <div class="form-label">State <span style="color:#f87171;">*</span></div>
-                    <input type="text" id="modifyCustState" class="form-control"
-                           placeholder="TX" maxlength="2" style="text-align:center;">
+                    <select id="modifyCustState" class="form-control">
+                        <option value="">— Select —</option>
+                        <option value="AL">AL – Alabama</option>
+                        <option value="AK">AK – Alaska</option>
+                        <option value="AZ">AZ – Arizona</option>
+                        <option value="AR">AR – Arkansas</option>
+                        <option value="CA">CA – California</option>
+                        <option value="CO">CO – Colorado</option>
+                        <option value="CT">CT – Connecticut</option>
+                        <option value="DE">DE – Delaware</option>
+                        <option value="FL">FL – Florida</option>
+                        <option value="GA">GA – Georgia</option>
+                        <option value="HI">HI – Hawaii</option>
+                        <option value="ID">ID – Idaho</option>
+                        <option value="IL">IL – Illinois</option>
+                        <option value="IN">IN – Indiana</option>
+                        <option value="IA">IA – Iowa</option>
+                        <option value="KS">KS – Kansas</option>
+                        <option value="KY">KY – Kentucky</option>
+                        <option value="LA">LA – Louisiana</option>
+                        <option value="ME">ME – Maine</option>
+                        <option value="MD">MD – Maryland</option>
+                        <option value="MA">MA – Massachusetts</option>
+                        <option value="MI">MI – Michigan</option>
+                        <option value="MN">MN – Minnesota</option>
+                        <option value="MS">MS – Mississippi</option>
+                        <option value="MO">MO – Missouri</option>
+                        <option value="MT">MT – Montana</option>
+                        <option value="NE">NE – Nebraska</option>
+                        <option value="NV">NV – Nevada</option>
+                        <option value="NH">NH – New Hampshire</option>
+                        <option value="NJ">NJ – New Jersey</option>
+                        <option value="NM">NM – New Mexico</option>
+                        <option value="NY">NY – New York</option>
+                        <option value="NC">NC – North Carolina</option>
+                        <option value="ND">ND – North Dakota</option>
+                        <option value="OH">OH – Ohio</option>
+                        <option value="OK">OK – Oklahoma</option>
+                        <option value="OR">OR – Oregon</option>
+                        <option value="PA">PA – Pennsylvania</option>
+                        <option value="RI">RI – Rhode Island</option>
+                        <option value="SC">SC – South Carolina</option>
+                        <option value="SD">SD – South Dakota</option>
+                        <option value="TN">TN – Tennessee</option>
+                        <option value="TX">TX – Texas</option>
+                        <option value="UT">UT – Utah</option>
+                        <option value="VT">VT – Vermont</option>
+                        <option value="VA">VA – Virginia</option>
+                        <option value="WA">WA – Washington</option>
+                        <option value="WV">WV – West Virginia</option>
+                        <option value="WI">WI – Wisconsin</option>
+                        <option value="WY">WY – Wyoming</option>
+                    </select>
                     <div class="field-error" id="modifyCustStateError"></div>
                 </div>
                 <div>
@@ -333,34 +428,17 @@
                 </div>
             </div>
 
-            <!-- Account Type -->
-            <div>
-                <div class="form-label">Account Type</div>
-                <div style="display:flex; gap:24px; margin-top:8px;">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
-                        <input type="radio" name="modifyCustType" value="Residential" onchange="toggleBusinessFields()"> 🏠 Residential
-                    </label>
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc;">
-                        <input type="radio" name="modifyCustType" value="Business" onchange="toggleBusinessFields()"> 🏢 Business
-                    </label>
-                </div>
-            </div>
-
             <!-- Business Only: Tax ID + Tax Exempt -->
-            <div id="businessFieldsRow" style="display:none; flex-direction:column; gap:12px;
-                 background:#1a1a2e; border:1px solid #2e2e4e; border-radius:8px; padding:14px;">
+            <div id="businessFieldsRow" style="display:none; flex-direction:column; gap:14px;
+                 background:#1a1a2e; border:1px solid #2e2e4e; border-radius:8px; padding:16px;">
 
-                <div style="font-size:12px; color:#888; margin-bottom:2px;">
-                    🏢 Business Account Fields
-                </div>
+                <div style="font-size:12px; color:#888;">🏢 Business Account Fields</div>
 
                 <!-- Tax ID -->
                 <div>
                     <div class="form-label">
                         Tax ID
-                        <span style="color:#666; font-size:11px; margin-left:6px;">
-                            (optional — locked once saved)
-                        </span>
+                        <span style="color:#666; font-size:11px; margin-left:6px;">(optional — locked once saved)</span>
                     </div>
                     <input type="text" id="modifyCustTaxId" class="form-control" placeholder="e.g. TX-12345678">
                 </div>
@@ -372,9 +450,7 @@
                                style="width:16px; height:16px; accent-color:#a78bfa;">
                         <span style="color:#ccc; font-size:14px;">
                             Tax Exempt
-                            <span style="color:#666; font-size:11px; margin-left:6px;">
-                                (locked if Tax ID is set)
-                            </span>
+                            <span style="color:#666; font-size:11px; margin-left:6px;">(locked if Tax ID is set)</span>
                         </span>
                     </label>
                 </div>
