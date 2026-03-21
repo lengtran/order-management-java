@@ -334,17 +334,36 @@ function saveModifyOrder() {
     alert(`Order #${id} updated successfully.`);
 }
 
-function openModifyCustomerModal(customerId) {
-    const customerOrders = orders.filter(o => o.customerId === customerId);
-    if (!customerOrders.length) return;
+async function openModifyCustomerModal(customerId) {
+    const res      = await fetch(`/api/customers/${customerId}`);
+    const customer = await res.json();
 
-    const first                = customerOrders[0];
-    const [firstName, ...rest] = first.customer.split(' ');
-
-    document.getElementById('modifyCustomerTitle').textContent = `Edit Profile — ${first.customer}`;
+    document.getElementById('modifyCustomerTitle').textContent = `Edit Profile — ${customer.firstName} ${customer.lastName}`;
     document.getElementById('modifyCustomerId').value          = customerId;
-    document.getElementById('modifyCustFirstName').value       = firstName;
-    document.getElementById('modifyCustLastName').value        = rest.join(' ');
+    document.getElementById('modifyCustFirstName').value       = customer.firstName  || '';
+    document.getElementById('modifyCustLastName').value        = customer.lastName   || '';
+    document.getElementById('modifyCustEmail').value           = customer.email      || '';
+    document.getElementById('modifyCustPhone').value           = customer.phone      || '';
+    document.getElementById('modifyCustPhoneType').value       = customer.phoneType  || 'Mobile';
+    document.getElementById('modifyCustStreet').value          = customer.street     || '';
+    document.getElementById('modifyCustCity').value            = customer.city       || '';
+    document.getElementById('modifyCustZip').value             = customer.zip        || '';
+    document.getElementById('modifyCustPrefDisplay').value     = customer.contactPref || 'Email';
+
+    document.getElementById('modifyCustTypeDisplay').value     = customer.accountType || 'Residential';
+
+    const stateSelect = document.getElementById('modifyCustState');
+    if (stateSelect) stateSelect.value = customer.state || '';
+
+    const companyRow   = document.getElementById('companyNameRow');
+    const businessRows = document.getElementById('businessFieldsRow');
+    if (customer.accountType === 'Business') {
+        if (companyRow)   companyRow.style.display   = 'block';
+        if (businessRows) businessRows.style.display = 'flex';
+    } else {
+        if (companyRow)   companyRow.style.display   = 'none';
+        if (businessRows) businessRows.style.display = 'none';
+    }
 
     openModal('modifyCustomerModal');
 }
