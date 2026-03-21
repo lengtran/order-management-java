@@ -251,3 +251,16 @@ td {
     color: #00cc66;
     margin-left: 8px;
 }
+
+.btn-close {
+    background-color: #3a3a5c;
+    color: #ccc;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.btn-close:hover {
+    background-color: #4a4a6c;
+}

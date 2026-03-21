@@ -91,6 +91,94 @@
         <td class="action">No action needed.</td>
         <td><button class="resolve-btn" disabled>Resolved</button></td>
     </tr>
+    <tr data-store="S001">
+        <td><button class="clickable" onclick="openOrderModal('1011')">1011</button></td>
+        <td>C005</td>
+        <td><button class="clickable" onclick="openCustomerModal('C005')">Marcus Johnson</button></td>
+        <td><span class="store-id">S001</span><span class="store-tag">North Austin</span></td>
+        <td><span class="badge failed">Failed</span></td>
+        <td><span class="badge paid">Paid</span></td>
+        <td>2026-03-20</td><td>$245.97</td>
+        <td class="action">Reprocessing order...</td>
+        <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
+    </tr>
+    <tr data-store="S002">
+        <td><button class="clickable" onclick="openOrderModal('1012')">1012</button></td>
+        <td>C005</td>
+        <td><button class="clickable" onclick="openCustomerModal('C005')">Marcus Johnson</button></td>
+        <td><span class="store-id">S002</span><span class="store-tag">South Austin</span></td>
+        <td><span class="badge completed">Completed</span></td>
+        <td><span class="badge paid">Paid</span></td>
+        <td>2026-03-15</td><td>$89.99</td>
+        <td class="action">No action needed.</td>
+        <td><button class="resolve-btn" disabled>Resolved</button></td>
+    </tr>
+    <tr data-store="S001">
+        <td><button class="clickable" onclick="openOrderModal('1013')">1013</button></td>
+        <td>C006</td>
+        <td><button class="clickable" onclick="openCustomerModal('C006')">Sara Williams</button></td>
+        <td><span class="store-id">S001</span><span class="store-tag">North Austin</span></td>
+        <td><span class="badge pending">Pending</span></td>
+        <td><span class="badge declined">Declined</span></td>
+        <td>2026-03-20</td><td>$312.45</td>
+        <td class="action">Escalating to payment team...</td>
+        <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
+    </tr>
+    <tr data-store="S003">
+        <td><button class="clickable" onclick="openOrderModal('1014')">1014</button></td>
+        <td>C006</td>
+        <td><button class="clickable" onclick="openCustomerModal('C006')">Sara Williams</button></td>
+        <td><span class="store-id">S003</span><span class="store-tag">Round Rock</span></td>
+        <td><span class="badge completed">Completed</span></td>
+        <td><span class="badge paid">Paid</span></td>
+        <td>2026-03-10</td><td>$54.99</td>
+        <td class="action">No action needed.</td>
+        <td><button class="resolve-btn" disabled>Resolved</button></td>
+    </tr>
+    <tr data-store="S002">
+        <td><button class="clickable" onclick="openOrderModal('1015')">1015</button></td>
+        <td>C007</td>
+        <td><button class="clickable" onclick="openCustomerModal('C007')">David Lee</button></td>
+        <td><span class="store-id">S002</span><span class="store-tag">South Austin</span></td>
+        <td><span class="badge canceled">Canceled</span></td>
+        <td><span class="badge refunded">Refunded</span></td>
+        <td>2026-03-19</td><td>$178.50</td>
+        <td class="action">Logging cancellation...</td>
+        <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
+    </tr>
+    <tr data-store="S001">
+        <td><button class="clickable" onclick="openOrderModal('1016')">1016</button></td>
+        <td>C007</td>
+        <td><button class="clickable" onclick="openCustomerModal('C007')">David Lee</button></td>
+        <td><span class="store-id">S001</span><span class="store-tag">North Austin</span></td>
+        <td><span class="badge completed">Completed</span></td>
+        <td><span class="badge paid">Paid</span></td>
+        <td>2026-03-12</td><td>$99.99</td>
+        <td class="action">No action needed.</td>
+        <td><button class="resolve-btn" disabled>Resolved</button></td>
+    </tr>
+    <tr data-store="S003">
+        <td><button class="clickable" onclick="openOrderModal('1017')">1017</button></td>
+        <td>C008</td>
+        <td><button class="clickable" onclick="openCustomerModal('C008')">Priya Patel</button></td>
+        <td><span class="store-id">S003</span><span class="store-tag">Round Rock</span></td>
+        <td><span class="badge failed">Failed</span></td>
+        <td><span class="badge paid">Paid</span></td>
+        <td>2026-03-20</td><td>$421.98</td>
+        <td class="action">Reprocessing order...</td>
+        <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
+    </tr>
+    <tr data-store="S002">
+        <td><button class="clickable" onclick="openOrderModal('1018')">1018</button></td>
+        <td>C008</td>
+        <td><button class="clickable" onclick="openCustomerModal('C008')">Priya Patel</button></td>
+        <td><span class="store-id">S002</span><span class="store-tag">South Austin</span></td>
+        <td><span class="badge pending">Pending</span></td>
+        <td><span class="badge declined">Declined</span></td>
+        <td>2026-03-18</td><td>$67.50</td>
+        <td class="action">Escalating to payment team...</td>
+        <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
+    </tr>
     </tbody>
 </table>
 
@@ -105,8 +193,12 @@
         <table>
             <thead>
             <tr>
-                <th>Item</th><th>Qty</th><th>List Price</th>
-                <th>Retail Price</th><th>Savings</th><th>Line Total</th>
+                <th>Item / SKU</th>
+                <th>Qty</th>
+                <th>List Price</th>
+                <th>Retail Price</th>
+                <th>Savings</th>
+                <th>Line Total</th>
             </tr>
             </thead>
             <tbody id="orderItemsBody"></tbody>
@@ -128,8 +220,13 @@
         <table>
             <thead>
             <tr>
-                <th>Order ID</th><th>Store</th><th>Date</th>
-                <th>Order Status</th><th>Payment</th><th>Total</th><th>Actions</th>
+                <th>Order ID</th>
+                <th>Store</th>
+                <th>Date</th>
+                <th>Order Status</th>
+                <th>Payment</th>
+                <th>Total</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody id="customerOrderHistoryBody"></tbody>
@@ -139,36 +236,64 @@
 
 <!-- Modify Order Modal -->
 <div class="modal-overlay" id="modifyModal">
-    <div class="modal" style="width:480px;">
+    <div class="modal" style="width:680px;">
         <button class="modal-close" onclick="closeModal('modifyModal')">✕</button>
         <h2 id="modifyModalTitle">Modify Order</h2>
-        <div class="subtitle">Update the order details below and click Save Changes.</div>
+        <div class="subtitle">Adjust quantities, status, and fulfillment. Removed items are kept for records.</div>
         <input type="hidden" id="modifyOrderId">
+
         <div style="display:flex; flex-direction:column; gap:18px; margin-top:8px;">
-            <div>
-                <div class="form-label">Order Status</div>
-                <select id="modifyOrderStatus" class="form-control">
-                    <option>Failed</option>
-                    <option>Pending</option>
-                    <option>Completed</option>
-                    <option>Canceled</option>
-                </select>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div>
+                    <div class="form-label">Order Status</div>
+                    <select id="modifyOrderStatus" class="form-control">
+                        <option>Failed</option>
+                        <option>Pending</option>
+                        <option>Completed</option>
+                        <option>Canceled</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="form-label">Fulfillment Type</div>
+                    <select id="modifyFulfillment" class="form-control">
+                        <option>Delivery</option>
+                        <option>Pickup</option>
+                        <option>Will Call</option>
+                        <option>Ship to Store</option>
+                    </select>
+                </div>
             </div>
+
             <div>
-                <div class="form-label">Fulfillment Type</div>
-                <select id="modifyFulfillment" class="form-control">
-                    <option>Delivery</option>
-                    <option>Pickup</option>
-                    <option>Will Call</option>
-                    <option>Ship to Store</option>
-                </select>
+                <div class="form-label" style="margin-bottom:10px;">Adjust Item Quantities</div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Item / SKU</th>
+                        <th>Unit Price</th>
+                        <th>Qty</th>
+                        <th>Line Total</th>
+                    </tr>
+                    </thead>
+                    <tbody id="modifyItemsBody"></tbody>
+                </table>
             </div>
+
+            <div class="cost-breakdown">
+                <div class="cost-row"><span>Subtotal</span><span id="modifySubtotal">$0.00</span></div>
+                <div class="cost-row"><span>Tax</span><span id="modifyTax">$0.00</span></div>
+                <div class="cost-row total"><span>New Order Total</span><span id="modifyTotal">$0.00</span></div>
+            </div>
+
             <div>
                 <div class="form-label">Note (optional)</div>
-                <textarea id="modifyNote" class="form-control" rows="3"
-                          placeholder="e.g. Customer called to change pickup time..."></textarea>
+                <textarea id="modifyNote" class="form-control" rows="2"
+                          placeholder="e.g. Customer requested qty reduction on drill bits..."></textarea>
             </div>
+
         </div>
+
         <div class="action-buttons">
             <button class="btn btn-modify" onclick="saveModifyOrder()">💾 Save Changes</button>
             <button class="btn btn-cancel" onclick="closeModal('modifyModal')">Cancel</button>
