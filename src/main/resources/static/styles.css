@@ -366,3 +366,29 @@ table td a:hover {
     color: #ffffff;
     text-decoration: underline;
 }
+
+th[data-col] {
+    cursor: pointer !important;
+    user-select: none;
+    white-space: nowrap;
+}
+
+th[data-col]:hover {
+    background-color: #4a4a6c !important;
+}
+
+th[data-col]::after {
+    content: ' ⇅' !important;
+    opacity: 0.3;
+    font-size: 11px;
+}
+
+th[data-col][data-sort="asc"]::after {
+    content: ' ↑' !important;
+    opacity: 1 !important;
+}
+
+th[data-col][data-sort="desc"]::after {
+    content: ' ↓' !important;
+    opacity: 1 !important;
+}

@@ -1,5 +1,7 @@
 let storeNames = {};
 
+let sortConfig = { column: null, direction: 'asc' };
+
 function isITIssue(order) {
     return (order.orderStatus === 'Failed'  && order.paymentStatus === 'Paid') ||
         (order.orderStatus === 'Pending' && order.paymentStatus === 'Declined');
@@ -29,24 +31,46 @@ function renderStatCards(data) {
     const completed = data.filter(o => o.orderStatus   === 'Completed').length;
 
     document.getElementById('statsBar').innerHTML = `
-        <div class="stat-card stat-failed">
+        <div class="stat-card stat-failed"   onclick="filterByCard('failed')"   style="cursor:pointer;">
             <div class="stat-number">${failed}</div>
             <div class="stat-label">Failed</div>
         </div>
-        <div class="stat-card stat-declined">
+        <div class="stat-card stat-declined" onclick="filterByCard('declined')" style="cursor:pointer;">
             <div class="stat-number">${declined}</div>
             <div class="stat-label">Declined</div>
         </div>
-        <div class="stat-card stat-canceled">
+        <div class="stat-card stat-canceled" onclick="filterByCard('canceled')" style="cursor:pointer;">
             <div class="stat-number">${canceled}</div>
             <div class="stat-label">Canceled</div>
         </div>
-        <div class="stat-card stat-completed">
+        <div class="stat-card stat-completed" onclick="filterByCard('completed')" style="cursor:pointer;">
             <div class="stat-number">${completed}</div>
             <div class="stat-label">Completed</div>
         </div>
     `;
 }
+
+let activeCardFilter = null;
+
+function filterByCard(type) {
+    if (activeCardFilter === type) {
+        activeCardFilter = null;
+        applyFilters();
+        return;
+    }
+    activeCardFilter = type;
+
+    const filtered = orders.filter(o => {
+        if (type === 'failed')    return o.orderStatus   === 'Failed';
+        if (type === 'declined')  return o.paymentStatus === 'Declined';
+        if (type === 'canceled')  return o.orderStatus   === 'Canceled';
+        if (type === 'completed') return o.orderStatus   === 'Completed';
+        return true;
+    });
+
+    renderTable(filtered);
+}
+
 
 function renderTable(data) {
     const tbody = document.getElementById('ordersTableBody');
@@ -70,19 +94,69 @@ function renderTable(data) {
         `;
         tbody.appendChild(tr);
     });
+
+    updateSortIcons();
+}
+
+function updateSortIcons() {
+    document.querySelectorAll('th[data-col]').forEach(th => {
+        const col = th.dataset.col;
+        if (col === sortConfig.column) {
+            th.dataset.sort = sortConfig.direction;
+        } else {
+            th.dataset.sort = '';
+        }
+    });
+}
+
+function sortBy(column) {
+    if (sortConfig.column === column) {
+        sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortConfig.column    = column;
+        sortConfig.direction = 'asc';
+    }
+
+    const dir = sortConfig.direction === 'asc' ? 1 : -1;
+
+    const sorted = [...orders].sort((a, b) => {
+        let aVal, bVal;
+        if (column === 'id')            { aVal = a.id;            bVal = b.id; }
+        if (column === 'customer')      { aVal = a.customer;      bVal = b.customer; }
+        if (column === 'store')         { aVal = a.storeId;       bVal = b.storeId; }
+        if (column === 'date')          { aVal = a.date;          bVal = b.date; }
+        if (column === 'orderStatus')   { aVal = a.orderStatus;   bVal = b.orderStatus; }
+        if (column === 'paymentStatus') { aVal = a.paymentStatus; bVal = b.paymentStatus; }
+        if (column === 'fulfillment')   { aVal = a.fulfillment;   bVal = b.fulfillment; }
+        if (column === 'total')         { return dir * (a.total - b.total); }
+        if (column === 'itIssue')       { return dir * ((isITIssue(a) ? 1 : 0) - (isITIssue(b) ? 1 : 0)); }
+        return dir * aVal.localeCompare(bVal);
+    });
+
+    renderTable(sorted);
 }
 
 function applyFilters() {
     const search      = document.getElementById('searchInput').value.toLowerCase();
     const storeFilter = document.getElementById('storeFilter').value;
 
-    const filtered = orders.filter(order => {
+    let filtered = orders.filter(order => {
         const matchSearch = order.id.toLowerCase().includes(search) ||
             order.customer.toLowerCase().includes(search) ||
             order.customerId.toLowerCase().includes(search);
         const matchStore  = !storeFilter || order.storeId === storeFilter;
         return matchSearch && matchStore;
     });
+
+    if (activeCardFilter) {
+        filtered = filtered.filter(o => {
+            if (activeCardFilter === 'failed')    return o.orderStatus   === 'Failed';
+            if (activeCardFilter === 'declined')  return o.paymentStatus === 'Declined';
+            if (activeCardFilter === 'canceled')  return o.orderStatus   === 'Canceled';
+            if (activeCardFilter === 'completed') return o.orderStatus   === 'Completed';
+            return true;
+        });
+    }
 
     renderTable(filtered);
     renderStatCards(filtered);

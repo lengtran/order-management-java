@@ -45,15 +45,15 @@
     <table id="ordersTable">
         <thead>
         <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Store</th>
-            <th>Date</th>
-            <th>Order Status</th>
-            <th>Payment Status</th>
-            <th>Fulfillment</th>
-            <th>Total</th>
-            <th>IT Issue</th>
+            <th data-col="id"            onclick="sortBy('id')">Order ID</th>
+            <th data-col="customer"      onclick="sortBy('customer')">Customer</th>
+            <th data-col="store"         onclick="sortBy('store')">Store</th>
+            <th data-col="date"          onclick="sortBy('date')">Date</th>
+            <th data-col="orderStatus"   onclick="sortBy('orderStatus')">Order Status</th>
+            <th data-col="paymentStatus" onclick="sortBy('paymentStatus')">Payment Status</th>
+            <th data-col="fulfillment"   onclick="sortBy('fulfillment')">Fulfillment</th>
+            <th data-col="total"         onclick="sortBy('total')">Total</th>
+            <th data-col="itIssue"       onclick="sortBy('itIssue')">IT Issue</th>
             <th>Action</th>
         </tr>
         </thead>
