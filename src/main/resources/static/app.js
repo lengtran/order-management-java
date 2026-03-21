@@ -1,11 +1,13 @@
 // ─────────────────────────────────────────────
 //  CONSTANTS
 // ─────────────────────────────────────────────
-const storeNames = {
-    'S001': 'North Austin',
-    'S002': 'South Austin',
-    'S003': 'Round Rock'
-};
+let storeNames = {};
+
+async function loadStores() {
+    const response = await fetch('/api/stores');
+    const stores   = await response.json();
+    stores.forEach(s => storeNames[s.id] = s.name);
+}
 
 // ─────────────────────────────────────────────
 //  HELPERS
@@ -444,6 +446,16 @@ function closeModal(id) { document.getElementById(id).classList.remove('active')
 // ─────────────────────────────────────────────
 let orders = [];
 
+async function loadStores() {
+    try {
+        const response = await fetch('/api/stores');
+        const stores   = await response.json();
+        stores.forEach(s => storeNames[s.id] = s.name);
+    } catch (error) {
+        console.error('Failed to load stores:', error);
+    }
+}
+
 async function loadOrders() {
     try {
         const response = await fetch('/api/orders');
@@ -455,4 +467,7 @@ async function loadOrders() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', loadOrders);
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadStores();
+    await loadOrders();
+});
