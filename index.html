@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e2e;
+            color: #ffffff;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #7ec8e3;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #aaaaaa;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #2a2a3d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #3a3a5c;
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 12px 18px;
+            border-bottom: 1px solid #3a3a5c;
+            font-size: 14px;
+        }
+
+        /* Status badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .failed     { background-color: #ff4d4d33; color: #ff4d4d; }
+        .declined   { background-color: #ffaa0033; color: #ffaa00; }
+        .canceled   { background-color: #88888833; color: #aaaaaa; }
+        .completed  { background-color: #00cc6633; color: #00cc66; }
+
+        /* Action column */
+        .action {
+            font-style: italic;
+            color: #aaaaaa;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Order Management System</h1>
+<p>Displays customer orders and recommended troubleshooting actions.</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Order Status</th>
+        <th>Payment Status</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>1001</td>
+        <td>John Smith</td>
+        <td><span class="badge failed">Failed</span></td>
+        <td>Paid</td>
+        <td class="action">Reprocessing order...</td>
+    </tr>
+    <tr>
+        <td>1002</td>
+        <td>Jane Doe</td>
+        <td>Pending</td>
+        <td><span class="badge declined">Declined</span></td>
+        <td class="action">Escalating to payment team...</td>
+    </tr>
+    <tr>
+        <td>1003</td>
+        <td>Bob Johnson</td>
+        <td><span class="badge canceled">Canceled</span></td>
+        <td>Refunded</td>
+        <td class="action">Logging cancellation...</td>
+    </tr>
+    <tr>
+        <td>1004</td>
+        <td>Alice Brown</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td>Paid</td>
+        <td class="action">No action needed.</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
