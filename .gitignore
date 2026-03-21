@@ -13,3 +13,9 @@ Thumbs.db
 # Environment / credentials (important!)
 .env
 config.properties
+
+# Maven build output
+target/
+
+# Spring Boot credentials
+src/main/resources/application.properties
