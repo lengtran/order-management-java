@@ -49,9 +49,9 @@ A full-stack customer support dashboard built with Java Spring Boot and MySQL.
 
 6. Open your browser
    http://localhost:8080
-
 ## 📁 Project Structure
 
+```
 src/
 ├── main/
 │   ├── java/com/oms/
@@ -64,3 +64,4 @@ src/
 │           ├── index.html
 │           ├── styles.css
 │           └── app.js
+```
