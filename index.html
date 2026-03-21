@@ -4,209 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Management System</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1e1e2e;
-            color: #ffffff;
-            padding: 40px;
-        }
-
-        h1 { color: #7ec8e3; margin-bottom: 6px; }
-        p  { color: #aaaaaa; margin-bottom: 30px; }
-
-        .cards {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            flex: 1;
-            background-color: #2a2a3d;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .card .number { font-size: 36px; font-weight: bold; margin-bottom: 6px; }
-        .card .label  { font-size: 13px; color: #aaaaaa; text-transform: uppercase; letter-spacing: 1px; }
-
-        .card.failed    .number { color: #ff4d4d; }
-        .card.declined  .number { color: #ffaa00; }
-        .card.canceled  .number { color: #aaaaaa; }
-        .card.completed .number { color: #00cc66; }
-
-        .search-bar { margin-bottom: 20px; }
-
-        .search-bar input {
-            width: 300px;
-            padding: 10px 16px;
-            border-radius: 6px;
-            border: 1px solid #3a3a5c;
-            background-color: #2a2a3d;
-            color: #ffffff;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .search-bar input::placeholder { color: #666; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #2a2a3d;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th {
-            background-color: #3a3a5c;
-            padding: 14px 18px;
-            text-align: left;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        td {
-            padding: 12px 18px;
-            border-bottom: 1px solid #3a3a5c;
-            font-size: 14px;
-        }
-
-        .badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .failed    { background-color: #ff4d4d33; color: #ff4d4d; }
-        .declined  { background-color: #ffaa0033; color: #ffaa00; }
-        .canceled  { background-color: #88888833; color: #aaaaaa; }
-        .completed { background-color: #00cc6633; color: #00cc66; }
-        .pending   { background-color: #7ec8e333; color: #7ec8e3; }
-        .paid      { background-color: #00cc6633; color: #00cc66; }
-        .refunded  { background-color: #aa88ff33; color: #aa88ff; }
-
-        .action { font-style: italic; color: #aaaaaa; }
-
-        /* Clickable links */
-        .clickable {
-            color: #7ec8e3;
-            cursor: pointer;
-            text-decoration: underline;
-            background: none;
-            border: none;
-            font-size: 14px;
-            padding: 0;
-        }
-
-        .clickable:hover { color: #ffffff; }
-
-        .resolve-btn {
-            padding: 6px 14px;
-            border-radius: 6px;
-            border: none;
-            background-color: #3a3a5c;
-            color: #ffffff;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .resolve-btn:hover    { background-color: #00cc66; color: #000; }
-        .resolve-btn:disabled { background-color: #2a2a3d; color: #666; cursor: default; }
-
-        /* Modal overlay */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.active { display: flex; }
-
-        .modal {
-            background-color: #2a2a3d;
-            border-radius: 12px;
-            padding: 32px;
-            width: 560px;
-            max-width: 90%;
-            position: relative;
-        }
-
-        .modal h2 { color: #7ec8e3; margin-bottom: 6px; }
-        .modal .subtitle { color: #aaaaaa; font-size: 13px; margin-bottom: 24px; }
-
-        .modal-close {
-            position: absolute;
-            top: 16px; right: 20px;
-            background: none;
-            border: none;
-            color: #aaaaaa;
-            font-size: 22px;
-            cursor: pointer;
-        }
-
-        .modal-close:hover { color: #fff; }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .info-item .info-label {
-            font-size: 11px;
-            color: #aaaaaa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-
-        .info-item .info-value {
-            font-size: 15px;
-            font-weight: bold;
-        }
-
-        .modal table {
-            margin-top: 8px;
-            font-size: 13px;
-        }
-
-        .modal th { font-size: 11px; padding: 10px 14px; }
-        .modal td { padding: 10px 14px; }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 24px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            border: none;
-            font-size: 13px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-reprocess { background-color: #ff4d4d; color: #fff; }
-        .btn-escalate  { background-color: #ffaa00; color: #000; }
-        .btn-cancel    { background-color: #555; color: #fff; }
-        .btn-reprocess:hover { background-color: #ff2222; }
-        .btn-escalate:hover  { background-color: #cc8800; }
-        .btn-cancel:hover    { background-color: #333; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -215,27 +13,21 @@
 
 <!-- Summary Cards -->
 <div class="cards">
-    <div class="card failed">
-        <div class="number">1</div>
-        <div class="label">Failed</div>
-    </div>
-    <div class="card declined">
-        <div class="number">1</div>
-        <div class="label">Declined</div>
-    </div>
-    <div class="card canceled">
-        <div class="number">1</div>
-        <div class="label">Canceled</div>
-    </div>
-    <div class="card completed">
-        <div class="number">1</div>
-        <div class="label">Completed</div>
-    </div>
+    <div class="card failed"><div class="number">1</div><div class="label">Failed</div></div>
+    <div class="card declined"><div class="number">1</div><div class="label">Declined</div></div>
+    <div class="card canceled"><div class="number">1</div><div class="label">Canceled</div></div>
+    <div class="card completed"><div class="number">1</div><div class="label">Completed</div></div>
 </div>
 
-<!-- Search Bar -->
-<div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search by customer or order ID..." onkeyup="filterTable()">
+<!-- Filters -->
+<div class="filters">
+    <input type="text" id="searchInput" placeholder="Search by customer or order ID..." onkeyup="applyFilters()">
+    <select id="storeFilter" onchange="applyFilters()">
+        <option value="">All Stores</option>
+        <option value="S001">S001 - North Austin</option>
+        <option value="S002">S002 - South Austin</option>
+        <option value="S003">S003 - Round Rock</option>
+    </select>
 </div>
 
 <!-- Orders Table -->
@@ -245,6 +37,7 @@
         <th>Order ID</th>
         <th>Customer ID</th>
         <th>Customer</th>
+        <th>Store</th>
         <th>Order Status</th>
         <th>Payment Status</th>
         <th>Order Date</th>
@@ -254,47 +47,47 @@
     </tr>
     </thead>
     <tbody>
-    <tr>
+    <tr data-store="S001">
         <td><button class="clickable" onclick="openOrderModal('1001')">1001</button></td>
         <td>C001</td>
         <td><button class="clickable" onclick="openCustomerModal('C001')">John Smith</button></td>
+        <td><span class="store-id">S001</span><span class="store-tag">North Austin</span></td>
         <td><span class="badge failed">Failed</span></td>
         <td><span class="badge paid">Paid</span></td>
-        <td>2026-03-20</td>
-        <td>$149.99</td>
+        <td>2026-03-20</td><td>$149.99</td>
         <td class="action">Reprocessing order...</td>
         <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
     </tr>
-    <tr>
+    <tr data-store="S002">
         <td><button class="clickable" onclick="openOrderModal('1002')">1002</button></td>
         <td>C002</td>
         <td><button class="clickable" onclick="openCustomerModal('C002')">Jane Doe</button></td>
+        <td><span class="store-id">S002</span><span class="store-tag">South Austin</span></td>
         <td><span class="badge pending">Pending</span></td>
         <td><span class="badge declined">Declined</span></td>
-        <td>2026-03-20</td>
-        <td>$89.99</td>
+        <td>2026-03-20</td><td>$89.99</td>
         <td class="action">Escalating to payment team...</td>
         <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
     </tr>
-    <tr>
+    <tr data-store="S003">
         <td><button class="clickable" onclick="openOrderModal('1003')">1003</button></td>
         <td>C003</td>
         <td><button class="clickable" onclick="openCustomerModal('C003')">Bob Johnson</button></td>
+        <td><span class="store-id">S003</span><span class="store-tag">Round Rock</span></td>
         <td><span class="badge canceled">Canceled</span></td>
         <td><span class="badge refunded">Refunded</span></td>
-        <td>2026-03-19</td>
-        <td>$59.99</td>
+        <td>2026-03-19</td><td>$59.99</td>
         <td class="action">Logging cancellation...</td>
         <td><button class="resolve-btn" onclick="resolveOrder(this)">Resolve</button></td>
     </tr>
-    <tr>
+    <tr data-store="S003">
         <td><button class="clickable" onclick="openOrderModal('1004')">1004</button></td>
         <td>C004</td>
         <td><button class="clickable" onclick="openCustomerModal('C004')">Alice Brown</button></td>
+        <td><span class="store-id">S003</span><span class="store-tag">Round Rock</span></td>
         <td><span class="badge completed">Completed</span></td>
         <td><span class="badge paid">Paid</span></td>
-        <td>2026-03-18</td>
-        <td>$199.99</td>
+        <td>2026-03-18</td><td>$199.99</td>
         <td class="action">No action needed.</td>
         <td><button class="resolve-btn" disabled>Resolved</button></td>
     </tr>
@@ -305,9 +98,21 @@
 <div class="modal-overlay" id="orderModal">
     <div class="modal">
         <button class="modal-close" onclick="closeModal('orderModal')">✕</button>
-        <h2 id="orderModalTitle">Order #1001</h2>
-        <div class="subtitle" id="orderModalSubtitle">Order details and available actions</div>
+        <h2 id="orderModalTitle"></h2>
+        <div class="subtitle" id="orderModalSubtitle"></div>
         <div class="info-grid" id="orderModalGrid"></div>
+        <div class="section-title">Items Ordered</div>
+        <table>
+            <thead>
+            <tr>
+                <th>Item</th><th>Qty</th><th>List Price</th>
+                <th>Retail Price</th><th>Savings</th><th>Line Total</th>
+            </tr>
+            </thead>
+            <tbody id="orderItemsBody"></tbody>
+        </table>
+        <div class="section-title">Order Total Breakdown</div>
+        <div class="cost-breakdown" id="costBreakdown"></div>
         <div class="action-buttons" id="orderModalActions"></div>
     </div>
 </div>
@@ -316,18 +121,15 @@
 <div class="modal-overlay" id="customerModal">
     <div class="modal">
         <button class="modal-close" onclick="closeModal('customerModal')">✕</button>
-        <h2 id="customerModalTitle">Customer Profile</h2>
+        <h2 id="customerModalTitle"></h2>
         <div class="subtitle" id="customerModalSubtitle"></div>
         <div class="info-grid" id="customerModalGrid"></div>
-        <h3 style="color:#7ec8e3; margin-bottom:12px;">Order History</h3>
-        <table id="customerOrderHistory">
+        <div class="section-title">Order History</div>
+        <table>
             <thead>
             <tr>
-                <th>Order ID</th>
-                <th>Date</th>
-                <th>Order Status</th>
-                <th>Payment</th>
-                <th>Total</th>
+                <th>Order ID</th><th>Store</th><th>Date</th>
+                <th>Order Status</th><th>Payment</th><th>Total</th><th>Actions</th>
             </tr>
             </thead>
             <tbody id="customerOrderHistoryBody"></tbody>
@@ -335,117 +137,46 @@
     </div>
 </div>
 
-<script>
-    const orders = {
-        '1001': { id:'1001', customer:'John Smith', customerId:'C001', orderStatus:'Failed',    paymentStatus:'Paid',     date:'2026-03-20', total:'$149.99', action:'Reprocess order' },
-        '1002': { id:'1002', customer:'Jane Doe',   customerId:'C002', orderStatus:'Pending',   paymentStatus:'Declined', date:'2026-03-20', total:'$89.99',  action:'Escalate to payment team' },
-        '1003': { id:'1003', customer:'Bob Johnson',customerId:'C003', orderStatus:'Canceled',  paymentStatus:'Refunded', date:'2026-03-19', total:'$59.99',  action:'Log cancellation' },
-        '1004': { id:'1004', customer:'Alice Brown',customerId:'C004', orderStatus:'Completed', paymentStatus:'Paid',     date:'2026-03-18', total:'$199.99', action:'No action needed' }
-    };
+<!-- Modify Order Modal -->
+<div class="modal-overlay" id="modifyModal">
+    <div class="modal" style="width:480px;">
+        <button class="modal-close" onclick="closeModal('modifyModal')">✕</button>
+        <h2 id="modifyModalTitle">Modify Order</h2>
+        <div class="subtitle">Update the order details below and click Save Changes.</div>
+        <input type="hidden" id="modifyOrderId">
+        <div style="display:flex; flex-direction:column; gap:18px; margin-top:8px;">
+            <div>
+                <div class="form-label">Order Status</div>
+                <select id="modifyOrderStatus" class="form-control">
+                    <option>Failed</option>
+                    <option>Pending</option>
+                    <option>Completed</option>
+                    <option>Canceled</option>
+                </select>
+            </div>
+            <div>
+                <div class="form-label">Fulfillment Type</div>
+                <select id="modifyFulfillment" class="form-control">
+                    <option>Delivery</option>
+                    <option>Pickup</option>
+                    <option>Will Call</option>
+                    <option>Ship to Store</option>
+                </select>
+            </div>
+            <div>
+                <div class="form-label">Note (optional)</div>
+                <textarea id="modifyNote" class="form-control" rows="3"
+                          placeholder="e.g. Customer called to change pickup time..."></textarea>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-modify" onclick="saveModifyOrder()">💾 Save Changes</button>
+            <button class="btn btn-cancel" onclick="closeModal('modifyModal')">Cancel</button>
+        </div>
+    </div>
+</div>
 
-    const customers = {
-        'C001': { id:'C001', name:'John Smith',  email:'john.smith@email.com',  phone:'512-555-0101',
-            orders: [
-                { id:'1001', date:'2026-03-20', orderStatus:'Failed',    payment:'Paid',     total:'$149.99' },
-                { id:'1005', date:'2026-02-14', orderStatus:'Completed', payment:'Paid',     total:'$39.99'  },
-                { id:'1006', date:'2026-01-05', orderStatus:'Completed', payment:'Paid',     total:'$79.99'  }
-            ]
-        },
-        'C002': { id:'C002', name:'Jane Doe',    email:'jane.doe@email.com',    phone:'512-555-0102',
-            orders: [
-                { id:'1002', date:'2026-03-20', orderStatus:'Pending',   payment:'Declined', total:'$89.99'  },
-                { id:'1007', date:'2026-02-28', orderStatus:'Completed', payment:'Paid',     total:'$119.99' }
-            ]
-        },
-        'C003': { id:'C003', name:'Bob Johnson', email:'bob.johnson@email.com', phone:'512-555-0103',
-            orders: [
-                { id:'1003', date:'2026-03-19', orderStatus:'Canceled',  payment:'Refunded', total:'$59.99'  },
-                { id:'1008', date:'2026-01-22', orderStatus:'Completed', payment:'Paid',     total:'$29.99'  }
-            ]
-        },
-        'C004': { id:'C004', name:'Alice Brown', email:'alice.brown@email.com', phone:'512-555-0104',
-            orders: [
-                { id:'1004', date:'2026-03-18', orderStatus:'Completed', payment:'Paid',     total:'$199.99' },
-                { id:'1009', date:'2026-03-10', orderStatus:'Failed',    payment:'Paid',     total:'$99.99'  },
-                { id:'1010', date:'2026-02-01', orderStatus:'Completed', payment:'Paid',     total:'$49.99'  }
-            ]
-        }
-    };
-
-    function getBadge(status) {
-        const map = {
-            'Failed':'failed','Declined':'declined','Canceled':'canceled',
-            'Completed':'completed','Pending':'pending','Paid':'paid','Refunded':'refunded'
-        };
-        const cls = map[status] || '';
-        return `<span class="badge ${cls}">${status}</span>`;
-    }
-
-    function openOrderModal(orderId) {
-        const o = orders[orderId];
-        document.getElementById('orderModalTitle').textContent = `Order #${o.id}`;
-        document.getElementById('orderModalSubtitle').textContent = `Customer: ${o.customer} (${o.customerId})`;
-        document.getElementById('orderModalGrid').innerHTML = `
-                <div class="info-item"><div class="info-label">Order Status</div><div class="info-value">${getBadge(o.orderStatus)}</div></div>
-                <div class="info-item"><div class="info-label">Payment Status</div><div class="info-value">${getBadge(o.paymentStatus)}</div></div>
-                <div class="info-item"><div class="info-label">Order Date</div><div class="info-value">${o.date}</div></div>
-                <div class="info-item"><div class="info-label">Total</div><div class="info-value">${o.total}</div></div>
-            `;
-        let actions = '';
-        if (o.orderStatus === 'Failed')   actions = `<button class="btn btn-reprocess">Reprocess Order</button>`;
-        if (o.paymentStatus === 'Declined') actions = `<button class="btn btn-escalate">Escalate to Payment Team</button>`;
-        if (o.orderStatus === 'Canceled') actions = `<button class="btn btn-cancel">Log Cancellation</button>`;
-        document.getElementById('orderModalActions').innerHTML = actions;
-        document.getElementById('orderModal').classList.add('active');
-    }
-
-    function openCustomerModal(customerId) {
-        const c = customers[customerId];
-        document.getElementById('customerModalTitle').textContent = c.name;
-        document.getElementById('customerModalSubtitle').textContent = `Customer ID: ${c.id}`;
-        document.getElementById('customerModalGrid').innerHTML = `
-                <div class="info-item"><div class="info-label">Email</div><div class="info-value">${c.email}</div></div>
-                <div class="info-item"><div class="info-label">Phone</div><div class="info-value">${c.phone}</div></div>
-                <div class="info-item"><div class="info-label">Total Orders</div><div class="info-value">${c.orders.length}</div></div>
-            `;
-        const rows = c.orders.map(o => `
-                <tr>
-                    <td>${o.id}</td>
-                    <td>${o.date}</td>
-                    <td>${getBadge(o.orderStatus)}</td>
-                    <td>${getBadge(o.payment)}</td>
-                    <td>${o.total}</td>
-                </tr>
-            `).join('');
-        document.getElementById('customerOrderHistoryBody').innerHTML = rows;
-        document.getElementById('customerModal').classList.add('active');
-    }
-
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('active');
-    }
-
-    function filterTable() {
-        const input = document.getElementById("searchInput").value.toLowerCase();
-        const rows = document.querySelectorAll("#ordersTable tbody tr");
-        rows.forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
-        });
-    }
-
-    function resolveOrder(btn) {
-        btn.closest("tr").style.opacity = "0.4";
-        btn.textContent = "Resolved";
-        btn.disabled = true;
-    }
-
-    // Close modal when clicking outside
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', function(e) {
-            if (e.target === this) this.classList.remove('active');
-        });
-    });
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
