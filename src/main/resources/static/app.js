@@ -179,6 +179,7 @@ async function openOrderModal(id) {
         `${order.customer} · ${order.customerId} · ${order.storeId} ${storeName}`;
 
     document.getElementById('orderModalGrid').innerHTML = `
+        <div class="info-item"><div class="info-label">Created By</div>     <div class="info-value" id="modal-created-by">${order.createdBy || '—'}</div></div>
         <div class="info-item"><div class="info-label">Order ID</div>       <div class="info-value">${order.id}</div></div>
         <div class="info-item"><div class="info-label">Customer</div>       <div class="info-value">${order.customer}</div></div>
         <div class="info-item"><div class="info-label">Customer ID</div>    <div class="info-value">${order.customerId}</div></div>
@@ -227,6 +228,15 @@ async function openOrderModal(id) {
         <button class="btn btn-cancel"    onclick="openModifyModal('${order.id}')">✏️ Modify</button>
         <button class="btn btn-close"     onclick="closeModal('orderModal')">✕ Close</button>
     `;
+
+    if (order.createdBy) {
+        fetch(`/api/users/${order.createdBy}`)
+            .then(r => r.json())
+            .then(u => {
+                const el = document.getElementById('modal-created-by');
+                if (el) el.textContent = `${u.firstName} ${u.lastName} (${u.username})`;
+            });
+    }
 
     openModal('orderModal');
 }
