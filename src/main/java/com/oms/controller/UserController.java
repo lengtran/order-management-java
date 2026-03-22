@@ -15,14 +15,15 @@ public class UserController {
     public UserController(UserRepository repo) { this.repo = repo; }
 
     @GetMapping
-    public List<User> getAll() { return repo.findAll(); }
+    public List<User> getAll() {
+        return repo.findAll();
+    }
 
     @GetMapping("/{id}")
     public Optional<User> getById(@PathVariable String id) {
         return repo.findById(id);
     }
 
-    // 👇 ADD THIS new endpoint
     @GetMapping("/current")
     public User getCurrentUser() {
         String username = SecurityContextHolder.getContext()

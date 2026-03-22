@@ -20,6 +20,7 @@ public class SecurityConfig {
                                 "/styles.css",
                                 "/app.js",
                                 "/index.html",
+                                "/favicon.ico",
                                 "/error",
                                 "/favicon.ico",
                                 "/images/**",

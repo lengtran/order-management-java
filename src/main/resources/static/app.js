@@ -610,7 +610,7 @@ async function submitAddNote() {
 
 async function loadCurrentUser() {
     try {
-        const res = await fetch('/api/user/current');
+        const res = await fetch('/api/users/current');
         const user = await res.json();
         if (user) {
             document.getElementById('userInfo').innerHTML = `
