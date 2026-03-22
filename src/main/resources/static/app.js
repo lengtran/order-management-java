@@ -567,6 +567,7 @@ async function loadOrders() {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadStores();
     await loadOrders();
+    await loadCurrentUser();
 });
 
 function openAddNoteModal(orderId) {
@@ -604,5 +605,20 @@ async function submitAddNote() {
         openOrderModal(orderId);      // refresh order modal to show new note
     } else {
         alert('Failed to save note. Please try again.');
+    }
+}
+
+async function loadCurrentUser() {
+    try {
+        const res = await fetch('/api/user/current');
+        const user = await res.json();
+        if (user) {
+            document.getElementById('userInfo').innerHTML = `
+                <span class="user-name">${user.firstName} ${user.lastName}</span>
+                <span class="user-role">${user.role}</span>
+            `;
+        }
+    } catch (error) {
+        console.error('Failed to load current user:', error);
     }
 }
