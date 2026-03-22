@@ -19,6 +19,7 @@ public class User {
 
     public String getId()        { return id; }
     public String getUsername()  { return username; }
+    public String getPassword()  { return password; } // 👈 ADD THIS
     public String getFirstName() { return firstName; }
     public String getLastName()  { return lastName; }
     public String getEmail()     { return email; }
