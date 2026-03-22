@@ -190,6 +190,8 @@ async function openOrderModal(id) {
         <div class="info-item"><div class="info-label">Payment Status</div> <div class="info-value"><span class="badge ${getBadgeClass(order.paymentStatus)}">${order.paymentStatus}</span></div></div>
         <div class="info-item"><div class="info-label">IT Issue</div>       <div class="info-value">${itIssue ? '⚠️ Yes' : 'No'}</div></div>
         <div class="info-item"><div class="info-label">Channel</div>        <div class="info-value" id="modal-channel"></div>
+        <div class="info-item"><div class="info-label">Channel</div>        <div class="info-value" id="modal-channel"></div></div>
+        <div style="grid-column: span 2; margin-top:10px;">                 <div class="section-label">📝 Order Notes</div><div id="orderNotesBody" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
     </div>
     `;
 
@@ -244,6 +246,27 @@ async function openOrderModal(id) {
     if (channelEl) {
         channelEl.textContent = order.storeId === 'S999' ? '🌐 Online' : '🏪 In-Store';
     }
+
+    // Fetch and render notes
+    fetch(`/api/order-notes/${order.id}`)
+        .then(r => r.json())
+        .then(notes => {
+            const container = document.getElementById('orderNotesBody');
+            if (!container) return;
+            if (notes.length === 0) {
+                container.innerHTML = `<p style="color:#555; font-size:13px;">No notes for this order.</p>`;
+                return;
+            }
+            container.innerHTML = notes.map(n => `
+            <div class="note-item note-${n.noteType.toLowerCase()}">
+                <div class="note-meta">
+                    <span class="note-type">${n.noteType}</span>
+                    <span class="note-date">${new Date(n.createdAt).toLocaleString()}</span>
+                </div>
+                <div class="note-text">${n.noteText}</div>
+            </div>
+        `).join('');
+        });
 
     openModal('orderModal');
 }
@@ -424,7 +447,7 @@ function openITSupportModal(orderId) {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    document.getElementById('itSupportModalTitle').textContent    = `IT Support — Order #${orderId}`;
+    document.getElementById('itSupportModalTitle').textContent    = `IT Support — Order #${order.id}`;
     document.getElementById('itSupportModalSubtitle').textContent =
         `${order.customer} · ${order.orderStatus} / ${order.paymentStatus}`;
 
@@ -460,7 +483,7 @@ function openNewTicketForm() {
     const orderId = title.replace('IT Support — Order #', '');
 
     document.getElementById('newTicketOrderId').value         = orderId;
-    document.getElementById('newTicketOrderInfo').textContent = `Order #${orderId}`;
+    document.getElementById('newTicketOrderInfo').textContent = `Order #${order.id}`;
     document.getElementById('newTicketTitle').value           = '';
     document.getElementById('newTicketDescription').value     = '';
     document.getElementById('newTicketTitleError').textContent       = '';
