@@ -230,6 +230,7 @@ async function openOrderModal(id) {
         <button class="btn btn-reprocess" onclick="alert('Reprocess initiated for Order #${order.id}')">🔄 Reprocess</button>
         <button class="btn btn-escalate"  onclick="openITSupportModal('${order.id}')">🎫 IT Support</button>
         <button class="btn btn-cancel"    onclick="openModifyModal('${order.id}')">✏️ Modify</button>
+        <button class="btn btn-note"      onclick="openAddNoteModal('${order.id}')">📝 Add Note</button>
         <button class="btn btn-close"     onclick="closeModal('orderModal')">✕ Close</button>
     `;
 
@@ -250,23 +251,35 @@ async function openOrderModal(id) {
     // Fetch and render notes
     fetch(`/api/order-notes/${order.id}`)
         .then(r => r.json())
-        .then(notes => {
+        .then(async notes => {
             const container = document.getElementById('orderNotesBody');
             if (!container) return;
             if (notes.length === 0) {
                 container.innerHTML = `<p style="color:#555; font-size:13px;">No notes for this order.</p>`;
                 return;
             }
+
+            // Fetch user names for all unique userIds
+            const userIds  = [...new Set(notes.map(n => n.userId).filter(Boolean))];
+            const userMap  = {};
+            await Promise.all(userIds.map(uid =>
+                fetch(`/api/users/${uid}`)
+                    .then(r => r.json())
+                    .then(u => userMap[uid] = `${u.firstName} ${u.lastName} (${u.username})`)
+            ));
+
             container.innerHTML = notes.map(n => `
             <div class="note-item note-${n.noteType.toLowerCase()}">
                 <div class="note-meta">
                     <span class="note-type">${n.noteType}</span>
+                    <span class="note-author">${userMap[n.userId] || 'Unknown'}</span>
                     <span class="note-date">${new Date(n.createdAt).toLocaleString()}</span>
                 </div>
                 <div class="note-text">${n.noteText}</div>
             </div>
         `).join('');
         });
+
 
     openModal('orderModal');
 }
@@ -555,3 +568,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadStores();
     await loadOrders();
 });
+
+function openAddNoteModal(orderId) {
+    document.getElementById('addNoteOrderId').value         = orderId;
+    document.getElementById('addNoteSubtitle').textContent  = `Order #${orderId}`;
+    document.getElementById('addNoteText').value            = '';
+    document.getElementById('addNoteTextError').textContent = '';
+    openModal('addNoteModal');
+}
+
+async function submitAddNote() {
+    const noteText = document.getElementById('addNoteText').value.trim();
+    if (!noteText) {
+        document.getElementById('addNoteTextError').textContent = 'Note text is required.';
+        return;
+    }
+    document.getElementById('addNoteTextError').textContent = '';
+
+    const orderId  = document.getElementById('addNoteOrderId').value;
+    const noteType = document.getElementById('addNoteType').value;
+
+    const res = await fetch('/api/order-notes', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            orderId,
+            userId:   'U001',         // hardcoded for now — will come from login later
+            noteType,
+            noteText
+        })
+    });
+
+    if (res.ok) {
+        closeModal('addNoteModal');
+        openOrderModal(orderId);      // refresh order modal to show new note
+    } else {
+        alert('Failed to save note. Please try again.');
+    }
+}

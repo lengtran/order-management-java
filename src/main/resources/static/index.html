@@ -554,6 +554,40 @@
     </div>
 </div>
 
+<!-- ADD NOTE MODAL -->
+<div class="modal-overlay" id="addNoteModal">
+    <div class="modal" style="width:520px;">
+        <button class="modal-close" onclick="closeModal('addNoteModal')">✕</button>
+        <h2>📝 Add Note</h2>
+        <div class="subtitle" id="addNoteSubtitle"></div>
+        <input type="hidden" id="addNoteOrderId">
+
+        <div style="display:flex; flex-direction:column; gap:16px; margin-top:18px;">
+            <div>
+                <div class="form-label">Note Type</div>
+                <select id="addNoteType" class="form-control">
+                    <option value="Internal">Internal</option>
+                    <option value="Customer">Customer</option>
+                    <option value="System">System</option>
+                </select>
+            </div>
+            <div>
+                <div class="form-label">Note <span style="color:#f87171;">*</span></div>
+                <textarea id="addNoteText" class="form-control"
+                          placeholder="Enter your note here..."
+                          style="min-height:120px; resize:vertical; font-family:inherit; line-height:1.5;"></textarea>
+                <div class="field-error" id="addNoteTextError"></div>
+            </div>
+        </div>
+
+        <div class="action-buttons" style="margin-top:20px;">
+            <button class="btn btn-note" onclick="submitAddNote()">💾 Save Note</button>
+            <button class="btn btn-close" onclick="closeModal('addNoteModal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
 
 <script src="app.js"></script>
 </body>

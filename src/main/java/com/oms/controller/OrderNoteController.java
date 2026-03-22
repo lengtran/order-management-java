@@ -16,4 +16,10 @@ public class OrderNoteController {
     public List<OrderNote> getByOrderId(@PathVariable String orderId) {
         return repo.findByOrderIdOrderByCreatedAtDesc(orderId);
     }
+
+    @PostMapping
+    public OrderNote create(@RequestBody OrderNote note) {
+        return repo.save(note);
+    }
+
 }

@@ -412,3 +412,12 @@ th[data-col][data-sort="desc"]::after {
 .note-type  { font-weight: 600; color: #ccc; text-transform: uppercase; font-size: 11px; }
 .note-date  { color: #555; font-size: 11px; }
 .note-text  { color: #ddd; line-height: 1.5; }
+
+.btn-note { background: #1e3a5f; color: #60a5fa; border: 1px solid #60a5fa; }
+.btn-note:hover { background: #60a5fa; color: #000; }
+
+.note-author {
+    color: #a78bfa;
+    font-size: 11px;
+    font-weight: 600;
+}
