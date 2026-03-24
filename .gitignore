@@ -19,3 +19,6 @@ target/
 
 # Spring Boot credentials
 src/main/resources/application.properties
+
+# ML output files
+ml/risk_output.csv
