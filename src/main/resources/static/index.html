@@ -598,7 +598,30 @@
     </div>
 </div>
 
+<script>
+    // If backend sends HTML instead of JSON (likely login page), redirect to /login
+    (async function () {
+        try {
+            const res = await fetch('/api/users/current');
+            const contentType = res.headers.get('content-type') || '';
 
+            // Not JSON → probably unauthenticated, got HTML login page
+            if (!contentType.includes('application/json')) {
+                window.location.href = '/login';
+                return;
+            }
+
+            // If JSON but unauthorized, also redirect
+            if (res.status === 401 || res.status === 403) {
+                window.location.href = '/login';
+                return;
+            }
+        } catch (e) {
+            // On network / parsing error, fail closed: send to login
+            window.location.href = '/login';
+        }
+    })();
+</script>
 
 <script src="app.js"></script>
 </body>
