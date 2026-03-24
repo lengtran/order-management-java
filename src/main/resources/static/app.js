@@ -1,12 +1,33 @@
-let storeNames = {};
+// ============================================================
+//  app.js — Order Management Dashboard
+//  Handles: table rendering, filtering, sorting, modals,
+//           order notes, IT tickets, customer profiles,
+//           and ML risk score integration
+// ============================================================
 
-let sortConfig = { column: null, direction: 'asc' };
 
+// ============================================================
+//  GLOBAL STATE
+// ============================================================
+
+let orders        = [];           // All orders loaded from the API
+let storeNames    = {};           // Map of storeId → store name
+let activeCardFilter = null;      // Currently active stat card filter
+let sortConfig    = { column: null, direction: 'asc' };  // Current sort state
+const itTickets   = {};           // In-memory IT tickets keyed by orderId
+
+
+// ============================================================
+//  UTILITY — Badge & IT Issue Helpers
+// ============================================================
+
+// Returns true if an order has a known IT-level conflict
 function isITIssue(order) {
     return (order.orderStatus === 'Failed'  && order.paymentStatus === 'Paid') ||
         (order.orderStatus === 'Pending' && order.paymentStatus === 'Declined');
 }
 
+// Maps status/fulfillment values to CSS badge class names
 function getBadgeClass(value) {
     const map = {
         'Failed':        'failed',
@@ -24,6 +45,43 @@ function getBadgeClass(value) {
     return map[value] || '';
 }
 
+
+// ============================================================
+//  ML RISK SCORE — FastAPI Integration
+// ============================================================
+
+// Calls Spring Boot → FastAPI → ML model to get a risk score for an order
+async function getOrderRisk(orderId) {
+    try {
+        const response = await fetch(`/api/orders/${orderId}/risk`);
+        const data     = await response.json();
+        return data.riskScore || 'Unknown';
+    } catch (error) {
+        console.error('Failed to fetch risk score:', error);
+        return 'Unknown';
+    }
+}
+
+// Returns a colored inline badge element string based on the risk level
+function getRiskBadge(riskScore) {
+    const colors = {
+        'High':    'background:#e74c3c; color:white;',
+        'Medium':  'background:#f39c12; color:white;',
+        'Low':     'background:#27ae60; color:white;',
+        'Unknown': 'background:#95a5a6; color:white;'
+    };
+    const style = colors[riskScore] || colors['Unknown'];
+    return `<span style="${style} padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;">
+                ${riskScore} Risk
+            </span>`;
+}
+
+
+// ============================================================
+//  STAT CARDS — Summary Counts at Top of Dashboard
+// ============================================================
+
+// Renders the four stat cards (Failed, Declined, Canceled, Completed)
 function renderStatCards(data) {
     const failed    = data.filter(o => o.orderStatus   === 'Failed').length;
     const declined  = data.filter(o => o.paymentStatus === 'Declined').length;
@@ -31,15 +89,15 @@ function renderStatCards(data) {
     const completed = data.filter(o => o.orderStatus   === 'Completed').length;
 
     document.getElementById('statsBar').innerHTML = `
-        <div class="stat-card stat-failed"   onclick="filterByCard('failed')"   style="cursor:pointer;">
+        <div class="stat-card stat-failed"    onclick="filterByCard('failed')"    style="cursor:pointer;">
             <div class="stat-number">${failed}</div>
             <div class="stat-label">Failed</div>
         </div>
-        <div class="stat-card stat-declined" onclick="filterByCard('declined')" style="cursor:pointer;">
+        <div class="stat-card stat-declined"  onclick="filterByCard('declined')"  style="cursor:pointer;">
             <div class="stat-number">${declined}</div>
             <div class="stat-label">Declined</div>
         </div>
-        <div class="stat-card stat-canceled" onclick="filterByCard('canceled')" style="cursor:pointer;">
+        <div class="stat-card stat-canceled"  onclick="filterByCard('canceled')"  style="cursor:pointer;">
             <div class="stat-number">${canceled}</div>
             <div class="stat-label">Canceled</div>
         </div>
@@ -50,8 +108,7 @@ function renderStatCards(data) {
     `;
 }
 
-let activeCardFilter = null;
-
+// Filters the table by clicking a stat card; clicking again clears the filter
 function filterByCard(type) {
     if (activeCardFilter === type) {
         activeCardFilter = null;
@@ -72,6 +129,11 @@ function filterByCard(type) {
 }
 
 
+// ============================================================
+//  TABLE RENDERING
+// ============================================================
+
+// Builds and inserts all order rows into the orders table
 function renderTable(data) {
     const tbody = document.getElementById('ordersTableBody');
     tbody.innerHTML = '';
@@ -80,6 +142,7 @@ function renderTable(data) {
         const storeName = storeNames[order.storeId] || '';
         const itIssue   = isITIssue(order);
         const tr        = document.createElement('tr');
+
         tr.innerHTML = `
             <td><button class="clickable" onclick="openOrderModal('${order.id}')">${order.id}</button></td>
             <td><button class="clickable" onclick="openCustomerModal('${order.customerId}')">${order.customer}</button></td>
@@ -98,17 +161,20 @@ function renderTable(data) {
     updateSortIcons();
 }
 
+// Updates the sort direction arrows on column headers
 function updateSortIcons() {
     document.querySelectorAll('th[data-col]').forEach(th => {
-        const col = th.dataset.col;
-        if (col === sortConfig.column) {
-            th.dataset.sort = sortConfig.direction;
-        } else {
-            th.dataset.sort = '';
-        }
+        const col   = th.dataset.col;
+        th.dataset.sort = (col === sortConfig.column) ? sortConfig.direction : '';
     });
 }
 
+
+// ============================================================
+//  SORTING
+// ============================================================
+
+// Sorts the orders table by the given column; toggles asc/desc on repeat clicks
 function sortBy(column) {
     if (sortConfig.column === column) {
         sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
@@ -136,6 +202,12 @@ function sortBy(column) {
     renderTable(sorted);
 }
 
+
+// ============================================================
+//  FILTERING — Search Bar + Store Dropdown + Stat Card
+// ============================================================
+
+// Applies all active filters (search text, store dropdown, stat card) together
 function applyFilters() {
     const search      = document.getElementById('searchInput').value.toLowerCase();
     const storeFilter = document.getElementById('storeFilter').value;
@@ -148,6 +220,7 @@ function applyFilters() {
         return matchSearch && matchStore;
     });
 
+    // Apply active stat card filter on top of search/store filters
     if (activeCardFilter) {
         filtered = filtered.filter(o => {
             if (activeCardFilter === 'failed')    return o.orderStatus   === 'Failed';
@@ -162,11 +235,23 @@ function applyFilters() {
     renderStatCards(filtered);
 }
 
+
+// ============================================================
+//  RESOLVE BUTTON
+// ============================================================
+
+// Marks an order row as resolved directly from the table
 function resolveOrder(id, btn) {
     btn.disabled    = true;
     btn.textContent = 'Resolved';
 }
 
+
+// ============================================================
+//  ORDER MODAL
+// ============================================================
+
+// Opens the order detail modal, fetches line items, notes, and ML risk score
 async function openOrderModal(id) {
     const order = orders.find(o => o.id === id);
     if (!order) return;
@@ -174,33 +259,45 @@ async function openOrderModal(id) {
     const storeName = storeNames[order.storeId] || '';
     const itIssue   = isITIssue(order);
 
+    // Set modal title and subtitle
     document.getElementById('orderModalTitle').textContent    = `Order #${order.id}`;
     document.getElementById('orderModalSubtitle').textContent =
         `${order.customer} · ${order.customerId} · ${order.storeId} ${storeName}`;
 
+    // Build the order info grid — includes a placeholder for the ML risk badge
     document.getElementById('orderModalGrid').innerHTML = `
-        <div class="info-item"><div class="info-label">Created By</div>     <div class="info-value" id="modal-created-by">${order.createdBy || '—'}</div></div>
-        <div class="info-item"><div class="info-label">Order ID</div>       <div class="info-value">${order.id}</div></div>
-        <div class="info-item"><div class="info-label">Customer</div>       <div class="info-value">${order.customer}</div></div>
-        <div class="info-item"><div class="info-label">Customer ID</div>    <div class="info-value">${order.customerId}</div></div>
-        <div class="info-item"><div class="info-label">Store</div>          <div class="info-value">${order.storeId} – ${storeName}</div></div>
-        <div class="info-item"><div class="info-label">Date</div>           <div class="info-value">${order.date}</div></div>
-        <div class="info-item"><div class="info-label">Fulfillment</div>    <div class="info-value">${order.fulfillment}</div></div>
-        <div class="info-item"><div class="info-label">Order Status</div>   <div class="info-value"><span class="badge ${getBadgeClass(order.orderStatus)}">${order.orderStatus}</span></div></div>
-        <div class="info-item"><div class="info-label">Payment Status</div> <div class="info-value"><span class="badge ${getBadgeClass(order.paymentStatus)}">${order.paymentStatus}</span></div></div>
-        <div class="info-item"><div class="info-label">IT Issue</div>       <div class="info-value">${itIssue ? '⚠️ Yes' : 'No'}</div></div>
-        <div class="info-item"><div class="info-label">Channel</div>        <div class="info-value" id="modal-channel"></div>
-        <div class="info-item"><div class="info-label">Channel</div>        <div class="info-value" id="modal-channel"></div></div>
-        <div style="grid-column: span 2; margin-top:10px;">                 <div class="section-label">📝 Order Notes</div><div id="orderNotesBody" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
-    </div>
+        <div class="info-item"><div class="info-label">Created By</div>      <div class="info-value" id="modal-created-by">${order.createdBy || '—'}</div></div>
+        <div class="info-item"><div class="info-label">Order ID</div>        <div class="info-value">${order.id}</div></div>
+        <div class="info-item"><div class="info-label">Customer</div>        <div class="info-value">${order.customer}</div></div>
+        <div class="info-item"><div class="info-label">Customer ID</div>     <div class="info-value">${order.customerId}</div></div>
+        <div class="info-item"><div class="info-label">Store</div>           <div class="info-value">${order.storeId} – ${storeName}</div></div>
+        <div class="info-item"><div class="info-label">Date</div>            <div class="info-value">${order.date}</div></div>
+        <div class="info-item"><div class="info-label">Fulfillment</div>     <div class="info-value">${order.fulfillment}</div></div>
+        <div class="info-item"><div class="info-label">Order Status</div>    <div class="info-value"><span class="badge ${getBadgeClass(order.orderStatus)}">${order.orderStatus}</span></div></div>
+        <div class="info-item"><div class="info-label">Payment Status</div>  <div class="info-value"><span class="badge ${getBadgeClass(order.paymentStatus)}">${order.paymentStatus}</span></div></div>
+        <div class="info-item"><div class="info-label">IT Issue</div>        <div class="info-value">${itIssue ? '⚠️ Yes' : 'No'}</div></div>
+        <div class="info-item"><div class="info-label">Channel</div>         <div class="info-value" id="modal-channel"></div></div>
+        <div class="info-item"><div class="info-label">Risk Score</div>      <div class="info-value"><span id="order-risk-badge">Loading...</span></div></div>
+        <div style="grid-column: span 2; margin-top:10px;">
+            <div class="section-label">📝 Order Notes</div>
+            <div id="orderNotesBody" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
     `;
 
+    // Fetch ML risk score and inject the colored badge
+    getOrderRisk(order.id).then(riskScore => {
+        const riskEl = document.getElementById('order-risk-badge');
+        if (riskEl) riskEl.innerHTML = getRiskBadge(riskScore);
+    });
+
+    // Fetch and render order line items
     const itemsRes = await fetch(`/api/order-items/${order.id}`);
     const items    = await itemsRes.json();
 
     const tbody = document.getElementById('orderItemsBody');
     tbody.innerHTML = '';
     let subtotal = 0;
+
     items.forEach(item => {
         const lineTotal = item.qty * item.retailPrice;
         const savings   = (item.listPrice - item.retailPrice) * item.qty;
@@ -217,15 +314,17 @@ async function openOrderModal(id) {
         `;
     });
 
+    // Render cost breakdown with tax calculation
     const tax = subtotal * 0.0825;
     document.getElementById('costBreakdown').innerHTML = `
         <div class="cost-breakdown">
-            <div class="cost-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-            <div class="cost-row"><span>Tax (8.25%)</span><span>$${tax.toFixed(2)}</span></div>
-            <div class="cost-row total"><span>Total</span><span>$${order.total.toFixed(2)}</span></div>
+            <div class="cost-row"><span>Subtotal</span>    <span>$${subtotal.toFixed(2)}</span></div>
+            <div class="cost-row"><span>Tax (8.25%)</span> <span>$${tax.toFixed(2)}</span></div>
+            <div class="cost-row total"><span>Total</span> <span>$${order.total.toFixed(2)}</span></div>
         </div>
     `;
 
+    // Render action buttons at the bottom of the modal
     document.getElementById('orderModalActions').innerHTML = `
         <button class="btn btn-reprocess" onclick="alert('Reprocess initiated for Order #${order.id}')">🔄 Reprocess</button>
         <button class="btn btn-escalate"  onclick="openITSupportModal('${order.id}')">🎫 IT Support</button>
@@ -234,6 +333,7 @@ async function openOrderModal(id) {
         <button class="btn btn-close"     onclick="closeModal('orderModal')">✕ Close</button>
     `;
 
+    // Resolve the createdBy user ID to a full display name
     if (order.createdBy) {
         fetch(`/api/users/${order.createdBy}`)
             .then(r => r.json())
@@ -243,25 +343,27 @@ async function openOrderModal(id) {
             });
     }
 
+    // Show channel label based on store ID (S999 = Online, anything else = In-Store)
     const channelEl = document.getElementById('modal-channel');
     if (channelEl) {
         channelEl.textContent = order.storeId === 'S999' ? '🌐 Online' : '🏪 In-Store';
     }
 
-    // Fetch and render notes
+    // Fetch order notes and render each with author name and timestamp
     fetch(`/api/order-notes/${order.id}`)
         .then(r => r.json())
         .then(async notes => {
             const container = document.getElementById('orderNotesBody');
             if (!container) return;
+
             if (notes.length === 0) {
                 container.innerHTML = `<p style="color:#555; font-size:13px;">No notes for this order.</p>`;
                 return;
             }
 
-            // Fetch user names for all unique userIds
-            const userIds  = [...new Set(notes.map(n => n.userId).filter(Boolean))];
-            const userMap  = {};
+            // Batch-fetch user display names for all unique note authors
+            const userIds = [...new Set(notes.map(n => n.userId).filter(Boolean))];
+            const userMap = {};
             await Promise.all(userIds.map(uid =>
                 fetch(`/api/users/${uid}`)
                     .then(r => r.json())
@@ -269,21 +371,26 @@ async function openOrderModal(id) {
             ));
 
             container.innerHTML = notes.map(n => `
-            <div class="note-item note-${n.noteType.toLowerCase()}">
-                <div class="note-meta">
-                    <span class="note-type">${n.noteType}</span>
-                    <span class="note-author">${userMap[n.userId] || 'Unknown'}</span>
-                    <span class="note-date">${new Date(n.createdAt).toLocaleString()}</span>
+                <div class="note-item note-${n.noteType.toLowerCase()}">
+                    <div class="note-meta">
+                        <span class="note-type">${n.noteType}</span>
+                        <span class="note-author">${userMap[n.userId] || 'Unknown'}</span>
+                        <span class="note-date">${new Date(n.createdAt).toLocaleString()}</span>
+                    </div>
+                    <div class="note-text">${n.noteText}</div>
                 </div>
-                <div class="note-text">${n.noteText}</div>
-            </div>
-        `).join('');
+            `).join('');
         });
-
 
     openModal('orderModal');
 }
 
+
+// ============================================================
+//  CUSTOMER MODAL
+// ============================================================
+
+// Opens the customer profile modal showing all orders for that customer
 function openCustomerModal(customerId) {
     const customerOrders = orders.filter(o => o.customerId === customerId);
     if (!customerOrders.length) return;
@@ -294,9 +401,9 @@ function openCustomerModal(customerId) {
         `Customer ID: ${customerId} · ${customerOrders.length} order(s) on file`;
 
     document.getElementById('customerModalGrid').innerHTML = `
-        <div class="info-item"><div class="info-label">Customer ID</div> <div class="info-value">${customerId}</div></div>
-        <div class="info-item"><div class="info-label">Name</div>        <div class="info-value">${first.customer}</div></div>
-        <div class="info-item"><div class="info-label">Total Orders</div><div class="info-value">${customerOrders.length}</div></div>
+        <div class="info-item"><div class="info-label">Customer ID</div>  <div class="info-value">${customerId}</div></div>
+        <div class="info-item"><div class="info-label">Name</div>         <div class="info-value">${first.customer}</div></div>
+        <div class="info-item"><div class="info-label">Total Orders</div> <div class="info-value">${customerOrders.length}</div></div>
     `;
 
     const tbody = document.getElementById('customerOrderHistoryBody');
@@ -324,6 +431,12 @@ function openCustomerModal(customerId) {
     openModal('customerModal');
 }
 
+
+// ============================================================
+//  MODIFY ORDER MODAL
+// ============================================================
+
+// Opens the modify order modal and populates it with current order data
 async function openModifyModal(id) {
     const order = orders.find(o => o.id === id);
     if (!order) return;
@@ -343,10 +456,12 @@ async function openModifyModal(id) {
             <tr>
                 <td>${item.name}</td>
                 <td>$${item.retailPrice.toFixed(2)}</td>
-                <td><input type="number" value="${item.qty}" min="1"
-                    style="width:60px; background:#1a1a2e; border:1px solid #3a3a5c;
-                           color:#fff; border-radius:4px; padding:4px; text-align:center;"
-                    onchange="recalcModify()"></td>
+                <td>
+                    <input type="number" value="${item.qty}" min="1"
+                        style="width:60px; background:#1a1a2e; border:1px solid #3a3a5c;
+                               color:#fff; border-radius:4px; padding:4px; text-align:center;"
+                        onchange="recalcModify()">
+                </td>
                 <td id="modifyLineTotal${i}">$${(item.qty * item.retailPrice).toFixed(2)}</td>
             </tr>
         `;
@@ -356,9 +471,11 @@ async function openModifyModal(id) {
     openModal('modifyModal');
 }
 
+// Recalculates subtotal, tax, and total as quantities change in the modify modal
 function recalcModify() {
     const rows = document.querySelectorAll('#modifyItemsBody tr');
     let subtotal = 0;
+
     rows.forEach((row, i) => {
         const price = parseFloat(row.cells[1].textContent.replace('$', ''));
         const qty   = parseInt(row.querySelector('input').value) || 1;
@@ -367,12 +484,14 @@ function recalcModify() {
         const el    = document.getElementById('modifyLineTotal' + i);
         if (el) el.textContent = '$' + line.toFixed(2);
     });
+
     const tax = subtotal * 0.0825;
     document.getElementById('modifySubtotal').textContent = '$' + subtotal.toFixed(2);
     document.getElementById('modifyTax').textContent      = '$' + tax.toFixed(2);
     document.getElementById('modifyTotal').textContent    = '$' + (subtotal + tax).toFixed(2);
 }
 
+// Saves the modified order status and fulfillment to the in-memory orders array
 function saveModifyOrder() {
     const id    = document.getElementById('modifyOrderId').value;
     const order = orders.find(o => o.id === id);
@@ -387,27 +506,33 @@ function saveModifyOrder() {
     alert(`Order #${id} updated successfully.`);
 }
 
+
+// ============================================================
+//  MODIFY CUSTOMER MODAL
+// ============================================================
+
+// Opens the edit customer profile modal and loads current customer data from API
 async function openModifyCustomerModal(customerId) {
     const res      = await fetch(`/api/customers/${customerId}`);
     const customer = await res.json();
 
     document.getElementById('modifyCustomerTitle').textContent = `Edit Profile — ${customer.firstName} ${customer.lastName}`;
     document.getElementById('modifyCustomerId').value          = customerId;
-    document.getElementById('modifyCustFirstName').value       = customer.firstName  || '';
-    document.getElementById('modifyCustLastName').value        = customer.lastName   || '';
-    document.getElementById('modifyCustEmail').value           = customer.email      || '';
-    document.getElementById('modifyCustPhone').value           = customer.phone      || '';
-    document.getElementById('modifyCustPhoneType').value       = customer.phoneType  || 'Mobile';
-    document.getElementById('modifyCustStreet').value          = customer.street     || '';
-    document.getElementById('modifyCustCity').value            = customer.city       || '';
-    document.getElementById('modifyCustZip').value             = customer.zip        || '';
+    document.getElementById('modifyCustFirstName').value       = customer.firstName   || '';
+    document.getElementById('modifyCustLastName').value        = customer.lastName    || '';
+    document.getElementById('modifyCustEmail').value           = customer.email       || '';
+    document.getElementById('modifyCustPhone').value           = customer.phone       || '';
+    document.getElementById('modifyCustPhoneType').value       = customer.phoneType   || 'Mobile';
+    document.getElementById('modifyCustStreet').value          = customer.street      || '';
+    document.getElementById('modifyCustCity').value            = customer.city        || '';
+    document.getElementById('modifyCustZip').value             = customer.zip         || '';
     document.getElementById('modifyCustPrefDisplay').value     = customer.contactPref || 'Email';
-
     document.getElementById('modifyCustTypeDisplay').value     = customer.accountType || 'Residential';
 
     const stateSelect = document.getElementById('modifyCustState');
     if (stateSelect) stateSelect.value = customer.state || '';
 
+    // Show/hide business-specific fields based on account type
     const companyRow   = document.getElementById('companyNameRow');
     const businessRows = document.getElementById('businessFieldsRow');
     if (customer.accountType === 'Business') {
@@ -421,6 +546,7 @@ async function openModifyCustomerModal(customerId) {
     openModal('modifyCustomerModal');
 }
 
+// Validates and saves updated customer name to the in-memory orders array
 function saveModifyCustomer() {
     const firstName = document.getElementById('modifyCustFirstName').value.trim();
     const lastName  = document.getElementById('modifyCustLastName').value.trim();
@@ -434,6 +560,7 @@ function saveModifyCustomer() {
         document.getElementById('modifyCustFirstNameError').textContent = '';
         document.getElementById('modifyCustFirstName').classList.remove('invalid');
     }
+
     if (!lastName) {
         document.getElementById('modifyCustLastNameError').textContent = 'Last name is required.';
         document.getElementById('modifyCustLastName').classList.add('invalid');
@@ -442,6 +569,7 @@ function saveModifyCustomer() {
         document.getElementById('modifyCustLastNameError').textContent = '';
         document.getElementById('modifyCustLastName').classList.remove('invalid');
     }
+
     if (!valid) return;
 
     const customerId = document.getElementById('modifyCustomerId').value;
@@ -454,8 +582,12 @@ function saveModifyCustomer() {
     alert('Customer profile updated.');
 }
 
-const itTickets = {};
 
+// ============================================================
+//  IT SUPPORT MODAL
+// ============================================================
+
+// Opens the IT support modal showing all tickets filed for an order
 function openITSupportModal(orderId) {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
@@ -469,6 +601,7 @@ function openITSupportModal(orderId) {
 
     const list = document.getElementById('itTicketList');
     list.innerHTML = '';
+
     if (!tickets.length) {
         list.innerHTML = '<div style="color:#666; font-size:13px;">No tickets submitted yet.</div>';
     } else {
@@ -491,20 +624,22 @@ function openITSupportModal(orderId) {
     openModal('itSupportModal');
 }
 
+// Opens the new ticket form modal, pre-filled with the current order ID
 function openNewTicketForm() {
     const title   = document.getElementById('itSupportModalTitle').textContent;
     const orderId = title.replace('IT Support — Order #', '');
 
-    document.getElementById('newTicketOrderId').value         = orderId;
-    document.getElementById('newTicketOrderInfo').textContent = `Order #${order.id}`;
-    document.getElementById('newTicketTitle').value           = '';
-    document.getElementById('newTicketDescription').value     = '';
-    document.getElementById('newTicketTitleError').textContent       = '';
+    document.getElementById('newTicketOrderId').value               = orderId;
+    document.getElementById('newTicketOrderInfo').textContent       = `Order #${orderId}`;
+    document.getElementById('newTicketTitle').value                 = '';
+    document.getElementById('newTicketDescription').value           = '';
+    document.getElementById('newTicketTitleError').textContent      = '';
     document.getElementById('newTicketDescriptionError').textContent = '';
 
     openModal('newTicketFormModal');
 }
 
+// Validates and submits a new IT support ticket to the in-memory itTickets map
 function submitNewTicket() {
     const title       = document.getElementById('newTicketTitle').value.trim();
     const description = document.getElementById('newTicketDescription').value.trim();
@@ -516,12 +651,14 @@ function submitNewTicket() {
     } else {
         document.getElementById('newTicketTitleError').textContent = '';
     }
+
     if (!description) {
         document.getElementById('newTicketDescriptionError').textContent = 'Description is required.';
         valid = false;
     } else {
         document.getElementById('newTicketDescriptionError').textContent = '';
     }
+
     if (!valid) return;
 
     const orderId = document.getElementById('newTicketOrderId').value;
@@ -538,38 +675,12 @@ function submitNewTicket() {
     openITSupportModal(orderId);
 }
 
-function openModal(id)  { document.getElementById(id).classList.add('active');    }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-let orders = [];
+// ============================================================
+//  ADD NOTE MODAL
+// ============================================================
 
-async function loadStores() {
-    try {
-        const response = await fetch('/api/stores');
-        const stores   = await response.json();
-        stores.forEach(s => storeNames[s.id] = s.name);
-    } catch (error) {
-        console.error('Failed to load stores:', error);
-    }
-}
-
-async function loadOrders() {
-    try {
-        const response = await fetch('/api/orders');
-        orders = await response.json();
-        renderTable(orders);
-        renderStatCards(orders);
-    } catch (error) {
-        console.error('Failed to load orders:', error);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadStores();
-    await loadOrders();
-    await loadCurrentUser();
-});
-
+// Opens the add note modal pre-filled with the target order ID
 function openAddNoteModal(orderId) {
     document.getElementById('addNoteOrderId').value         = orderId;
     document.getElementById('addNoteSubtitle').textContent  = `Order #${orderId}`;
@@ -578,6 +689,7 @@ function openAddNoteModal(orderId) {
     openModal('addNoteModal');
 }
 
+// Validates and POSTs a new note to the API, then refreshes the order modal
 async function submitAddNote() {
     const noteText = document.getElementById('addNoteText').value.trim();
     if (!noteText) {
@@ -594,7 +706,7 @@ async function submitAddNote() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             orderId,
-            userId:   'U001',         // hardcoded for now — will come from login later
+            userId:   'U001',   // TODO: replace with logged-in user ID from session
             noteType,
             noteText
         })
@@ -602,15 +714,52 @@ async function submitAddNote() {
 
     if (res.ok) {
         closeModal('addNoteModal');
-        openOrderModal(orderId);      // refresh order modal to show new note
+        openOrderModal(orderId);   // Refresh order modal to show the new note
     } else {
         alert('Failed to save note. Please try again.');
     }
 }
 
+
+// ============================================================
+//  MODAL HELPERS
+// ============================================================
+
+function openModal(id)  { document.getElementById(id).classList.add('active');    }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+
+// ============================================================
+//  API LOADERS
+// ============================================================
+
+// Fetches all stores and populates the storeNames lookup map
+async function loadStores() {
+    try {
+        const response = await fetch('/api/stores');
+        const stores   = await response.json();
+        stores.forEach(s => storeNames[s.id] = s.name);
+    } catch (error) {
+        console.error('Failed to load stores:', error);
+    }
+}
+
+// Fetches all orders and renders the table and stat cards
+async function loadOrders() {
+    try {
+        const response = await fetch('/api/orders');
+        orders = await response.json();
+        renderTable(orders);
+        renderStatCards(orders);
+    } catch (error) {
+        console.error('Failed to load orders:', error);
+    }
+}
+
+// Fetches the currently logged-in user and renders their name/role in the header
 async function loadCurrentUser() {
     try {
-        const res = await fetch('/api/users/current');
+        const res  = await fetch('/api/users/current');
         const user = await res.json();
         if (user) {
             document.getElementById('userInfo').innerHTML = `
@@ -622,3 +771,14 @@ async function loadCurrentUser() {
         console.error('Failed to load current user:', error);
     }
 }
+
+
+// ============================================================
+//  INIT — Run on Page Load
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadStores();
+    await loadOrders();
+    await loadCurrentUser();
+});
