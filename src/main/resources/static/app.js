@@ -153,7 +153,7 @@ function renderTable(data) {
             <td><span class="badge ${getBadgeClass(order.fulfillment)}">${order.fulfillment}</span></td>
             <td>$${order.total.toFixed(2)}</td>
             <td>${itIssue ? 'Y' : 'N'}</td>
-            <td><button class="resolve-btn" onclick="resolveOrder('${order.id}', this)" ${!itIssue ? 'disabled' : ''}>Resolve</button></td>
+            <td><button class="resolve-btn" onclick="resolveOrder('${order.id}', this)" ${!itIssue ? 'style="background:#444; color:#888; cursor:not-allowed;"' : ''}>${itIssue ? 'Confirm Complete' : 'N/A'}</button></td>
         `;
         tbody.appendChild(tr);
     });
@@ -243,7 +243,8 @@ function applyFilters() {
 // Marks an order row as resolved directly from the table
 function resolveOrder(id, btn) {
     btn.disabled    = true;
-    btn.textContent = 'Resolved';
+    btn.textContent = 'Done. Issue Resolved.';
+    btn.style.cssText = 'background:#444; color:#888; cursor:not-allowed; border:none; padding:5px 10px; border-radius:4px;';
 }
 
 
